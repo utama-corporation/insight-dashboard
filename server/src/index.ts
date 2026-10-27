@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import sql, { type ConnectionPool } from 'mssql'
 import { parse } from 'yaml'
 import { createApp, type RunReport, type Whitelist } from './app.js'
@@ -16,7 +16,24 @@ function loadWhitelist(): Whitelist {
   if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
     throw new Error('reports.yaml: missing "systems"')
   }
-  return (raw as { systems: unknown }).systems as Whitelist
+  const whitelist = (raw as { systems: unknown }).systems as Whitelist
+  for (const [system, def] of Object.entries(whitelist)) {
+    if (typeof def?.database !== 'string' || !Array.isArray(def.reports)) {
+      throw new Error(`reports.yaml: system "${system}" tidak valid`)
+    }
+    for (const report of def.reports) {
+      if (
+        typeof report.type !== 'string' ||
+        typeof report.procedure !== 'string' ||
+        !Array.isArray(report.params)
+      ) {
+        throw new Error(
+          `reports.yaml: laporan "${system}/${report.type ?? '?'}" tidak valid`,
+        )
+      }
+    }
+  }
+  return whitelist
 }
 
 function credentials(system: string): DbCredentials {

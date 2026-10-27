@@ -35,7 +35,7 @@ curl -X POST http://localhost:3001/api/wps/reports/produksi-semua-mesin \
              type: date
    ```
 
-2. Tambah `NAMA_SISTEM_CONNECTION_STRING` di `.env`.
+2. Tambah `NAMA_SISTEM_DB_SERVER` / `NAMA_SISTEM_DB_USER` / `NAMA_SISTEM_DB_PASSWORD` di `.env` (database sendiri diambil dari `reports.yaml`).
 
 Tidak ada kode yang perlu diubah.
 
