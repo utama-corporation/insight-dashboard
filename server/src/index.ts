@@ -1,7 +1,13 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import sql, { type ConnectionPool } from 'mssql'
 import { parse } from 'yaml'
 import { createApp, type RunReport, type Whitelist } from './app.js'
+
+interface DbCredentials {
+  server: string
+  user: string
+  password: string
+}
 
 function loadWhitelist(): Whitelist {
   const raw = parse(
@@ -10,54 +16,47 @@ function loadWhitelist(): Whitelist {
   if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
     throw new Error('reports.yaml: missing "systems"')
   }
-  const whitelist = (raw as { systems: unknown }).systems as Whitelist
-  for (const [system, def] of Object.entries(whitelist)) {
-    if (typeof def?.database !== 'string' || !Array.isArray(def.reports)) {
-      throw new Error(`reports.yaml: system "${system}" tidak valid`)
-    }
-    for (const report of def.reports) {
-      if (
-        typeof report.type !== 'string' ||
-        typeof report.procedure !== 'string' ||
-        !Array.isArray(report.params)
-      ) {
-        throw new Error(
-          `reports.yaml: laporan "${system}/${report.type ?? '?'}" tidak valid`,
-        )
-      }
-    }
-  }
-  return whitelist
+  return (raw as { systems: unknown }).systems as Whitelist
 }
 
-const whitelist = loadWhitelist()
+function credentials(system: string): DbCredentials {
+  const prefix = system.toUpperCase()
+  const server = process.env[`${prefix}_DB_SERVER`]
+  const user = process.env[`${prefix}_DB_USER`]
+  const password = process.env[`${prefix}_DB_PASSWORD`]
+  if (!server || !user || !password) {
+    throw new Error(
+      `Missing ${prefix}_DB_SERVER / ${prefix}_DB_USER / ${prefix}_DB_PASSWORD in environment`,
+    )
+  }
+  return { server, user, password }
+}
 
 const pools = new Map<string, Promise<ConnectionPool>>()
 
-function connectionString(system: string): string {
-  const envName = `${system.toUpperCase()}_CONNECTION_STRING`
-  const value = process.env[envName]
-  if (!value) {
-    throw new Error(`Missing ${envName} in environment`)
-  }
-  return value
-}
-
-function getPool(system: string): Promise<ConnectionPool> {
-  const existing = pools.get(system)
+function getPool(system: string, database: string): Promise<ConnectionPool> {
+  const key = `${system}:${database}`
+  const existing = pools.get(key)
   if (existing) return existing
-  const created = new sql.ConnectionPool(connectionString(system))
+  const creds = credentials(system)
+  const created = new sql.ConnectionPool({
+    server: creds.server,
+    user: creds.user,
+    password: creds.password,
+    database,
+    options: { encrypt: false, trustServerCertificate: true },
+  })
     .connect()
     .catch((err: unknown) => {
-      pools.delete(system)
+      pools.delete(key)
       throw err
     })
-  pools.set(system, created)
+  pools.set(key, created)
   return created
 }
 
-const runReport: RunReport = async (system, def, params) => {
-  const pool = await getPool(system)
+const runReport: RunReport = async (system, def, params, database) => {
+  const pool = await getPool(system, database)
   const request = pool.request()
   for (const p of def.params) {
     if (p.type === 'date') {
@@ -69,6 +68,6 @@ const runReport: RunReport = async (system, def, params) => {
 }
 
 const port = Number(process.env.PORT ?? 3001)
-createApp({ whitelist, runReport }).listen(port, () => {
+createApp({ whitelist: loadWhitelist(), runReport }).listen(port, () => {
   console.log(`insight server listening on :${port}`)
 })

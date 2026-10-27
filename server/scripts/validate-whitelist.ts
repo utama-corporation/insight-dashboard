@@ -14,13 +14,13 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import sql from 'mssql'
 import { parse } from 'yaml'
-import type { RunReport, Whitelist } from '../src/app.js'
+import type { RunReport, Whitelist } from '../src/app.ts'
 import {
   buildSampleParams,
   classifyFailure,
   describeColumns,
   type ColumnInfo,
-} from './validate-helpers.js'
+} from './validate-helpers.ts'
 
 interface ResultRow {
   system: string
@@ -42,20 +42,41 @@ function loadWhitelist(): Whitelist {
   return (raw as { systems: unknown }).systems as Whitelist
 }
 
-function connectionString(system: string): string {
-  const envName = `${system.toUpperCase()}_CONNECTION_STRING`
-  const value = process.env[envName]
-  if (!value) throw new Error(`Missing ${envName} in environment`)
-  return value
+function credentials(system: string): {
+  server: string
+  user: string
+  password: string
+} {
+  const prefix = system.toUpperCase()
+  const server = process.env[`${prefix}_DB_SERVER`]
+  const user = process.env[`${prefix}_DB_USER`]
+  const password = process.env[`${prefix}_DB_PASSWORD`]
+  if (!server || !user || !password) {
+    throw new Error(
+      `Missing ${prefix}_DB_SERVER / ${prefix}_DB_USER / ${prefix}_DB_PASSWORD in environment`,
+    )
+  }
+  return { server, user, password }
 }
 
-const runReport: RunReport = async (system, def, params) => {
-  const pool = await new sql.ConnectionPool(connectionString(system)).connect()
+const runReport: RunReport = async (system, def, params, database) => {
+  const creds = credentials(system)
+  const pool = await new sql.ConnectionPool({
+    server: creds.server,
+    user: creds.user,
+    password: creds.password,
+    database,
+    options: { encrypt: false, trustServerCertificate: true },
+  }).connect()
   try {
     const request = pool.request()
     for (const p of def.params) {
       if (p.type === 'date') {
-        request.input(p.name, sql.Date, new Date(`${params[p.name]}T00:00:00Z`))
+        request.input(
+          p.name,
+          sql.Date,
+          new Date(`${params[p.name]}T00:00:00Z`),
+        )
       }
     }
     const result = await request.execute(def.procedure)
@@ -73,7 +94,7 @@ for (const [system, def] of Object.entries(whitelist)) {
     const base = { system, type: report.type, procedure: report.procedure }
     try {
       const params = buildSampleParams(report.params)
-      const rows = await runReport(system, report, params)
+      const rows = await runReport(system, report, params, def.database)
       const columns = describeColumns(
         (rows as unknown as { columns?: unknown }).columns,
       )

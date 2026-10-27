@@ -24,6 +24,7 @@ export type RunReport = (
   system: string,
   def: ReportDef,
   params: Record<string, string>,
+  database: string,
 ) => Promise<unknown[]>
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
@@ -88,7 +89,7 @@ export function createApp({
     }
 
     try {
-      const rows = await runReport(system, def, result.params)
+      const rows = await runReport(system, def, result.params, sys.database)
       return res.json({ system, type, rows })
     } catch (err) {
       console.error(`report ${system}/${type} failed`, err)
