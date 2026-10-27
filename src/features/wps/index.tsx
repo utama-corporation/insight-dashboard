@@ -19,6 +19,11 @@ import { TopNav } from '@/components/layout/top-nav'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import {
+  MutationCategoryChart,
+  ProductionMachineChart,
+  RendemenGroupChart,
+} from './components/category-charts'
 
 const topNav = [{ title: 'WPS', href: '/wps', isActive: true }]
 
@@ -181,6 +186,17 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             testId='kpi-mutasi'
           />
         </div>
+
+        {loaded && (
+          <div className='grid gap-4 lg:grid-cols-2'>
+            <ProductionMachineChart
+              current={produksiCur.data ?? []}
+              previous={produksiPrev.data ?? []}
+            />
+            <MutationCategoryChart current={mutasiCur.data ?? []} />
+            <RendemenGroupChart current={rendemenCur.data ?? []} />
+          </div>
+        )}
       </Main>
     </>
   )

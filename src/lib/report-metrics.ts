@@ -6,7 +6,7 @@ export function sumBy(rows: ReportRow[], key: string): number {
   return rows.reduce((total, row) => total + num(row, key), 0)
 }
 
-function num(row: ReportRow, key: string): number {
+export function num(row: ReportRow, key: string): number {
   const value = row[key]
   return typeof value === 'number' ? value : Number(value) || 0
 }
