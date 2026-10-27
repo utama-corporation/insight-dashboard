@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "pnpm run build && node --watch --env-file-if-exists=.env dist/index.js",
     "build": "tsc -p tsconfig.json",
-    "lint": "tsc --noEmit -p tsconfig.json",    "test": "vitest run"
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "validate": "node --env-file-if-exists=.env scripts/validate-whitelist.ts"
   },
   "dependencies": {
     "express": "^5.1.0",
