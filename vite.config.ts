@@ -8,6 +8,17 @@ import { playwright } from '@vitest/browser-playwright'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Pre-bundle deps yang terdeteksi saat test berjalan — tanpa ini Vite
+  // reload di tengah run CI dan membuat salinan React kedua (invalid hook call)
+  optimizeDeps: {
+    include: [
+      'react-dom/client',
+      '@tanstack/react-query-devtools',
+      '@tanstack/react-router-devtools',
+      'react-top-loading-bar',
+      'recharts',
+    ],
+  },
   plugins: [
     tanstackRouter({
       target: 'react',
