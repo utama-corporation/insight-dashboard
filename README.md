@@ -1,4 +1,4 @@
-# Shadcn Admin Dashboard
+# Insight Dashboard
 
 Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
 
@@ -79,13 +79,13 @@ If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest 
 Clone the project
 
 ```bash
-  git clone https://github.com/satnaing/shadcn-admin.git
+  git clone https://github.com/utama-corporation/insight-dashboard.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd shadcn-admin
+  cd insight-dashboard
 ```
 
 Install dependencies
