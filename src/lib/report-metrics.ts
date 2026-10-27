@@ -65,10 +65,14 @@ export function periodBounds(
   }
   const prevYear = monthIdx === 1 ? year - 1 : year
   const prevMonthIdx = monthIdx === 1 ? 12 : monthIdx - 1
+  const prevMonthEnd = new Date(
+    Date.UTC(prevYear, prevMonthIdx, 0)
+  ).getUTCDate()
+  const prevEndDay = Math.min(curEndDay, prevMonthEnd)
   const prev: Period = {
     awal: `${prevYear}-${String(prevMonthIdx).padStart(2, '0')}-01`,
     akhir: `${prevYear}-${String(prevMonthIdx).padStart(2, '0')}-${String(
-      curEndDay
+      prevEndDay
     ).padStart(2, '0')}`,
   }
   return { cur, prev }
