@@ -7,7 +7,8 @@ Layanan Server Insight Dashboard: menjalankan **stored procedure dari whitelist*
 ```bash
 pnpm install
 cp .env.example .env   # isi kredensial read-only
-pnpm --filter server dev
+pnpm --filter server dev      # mode pengembangan (watch)
+pnpm --filter server start    # build lalu jalankan sekali
 ```
 
 Server berjalan di `http://localhost:3001`. Health check: `GET /health`.
