@@ -11,7 +11,8 @@ on:
 
 jobs:
   install-lint-build:
-    runs-on: ubuntu-latest
+    # ubuntu-latest now resolves to 26.04, unsupported by Playwright 1.59.1
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
