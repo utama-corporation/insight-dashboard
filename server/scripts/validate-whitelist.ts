@@ -2,10 +2,14 @@
  * Validasi whitelist terhadap database Production via akun read-only
  * (#YOUR_READ_ONLY_USER). Untuk setiap laporan: jalankan SP dengan contoh params,
  * catat bentuk kolom + jumlah baris; SP yang mencoba menulis data
- * ditandai MENULIS_DATA (gagal permission) dan harus dikeluarkan dari
- * whitelist. Jalankan di luar jam sibuk.
+ * ditandai MENULIS_DATA (gagal permission DML) dan harus dikeluarkan
+ * dari whitelist. Jalankan di luar jam sibuk.
  *
  *   node --env-file-if-exists=.env scripts/validate-whitelist.ts
+ *
+ * Catatan deteksi: jika SP dan tabelnya satu owner (dbo), ownership
+ * chaining bisa membuat SP penulis lolos sebagai OK — tembuskan hasil
+ * ke DBA untuk cek silang ke definisi SP bila ragu.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
 import sql from 'mssql'
@@ -29,9 +33,13 @@ interface ResultRow {
 }
 
 function loadWhitelist(): Whitelist {
-  return parse(
+  const raw = parse(
     readFileSync(new URL('../reports.yaml', import.meta.url), 'utf8'),
-  ) as Whitelist
+  ) as unknown
+  if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
+    throw new Error('reports.yaml: missing "systems"')
+  }
+  return (raw as { systems: unknown }).systems as Whitelist
 }
 
 function connectionString(system: string): string {
@@ -43,15 +51,18 @@ function connectionString(system: string): string {
 
 const runReport: RunReport = async (system, def, params) => {
   const pool = await new sql.ConnectionPool(connectionString(system)).connect()
-  const request = pool.request()
-  for (const p of def.params) {
-    if (p.type === 'date') {
-      request.input(p.name, sql.Date, new Date(`${params[p.name]}T00:00:00Z`))
+  try {
+    const request = pool.request()
+    for (const p of def.params) {
+      if (p.type === 'date') {
+        request.input(p.name, sql.Date, new Date(`${params[p.name]}T00:00:00Z`))
+      }
     }
+    const result = await request.execute(def.procedure)
+    return result.recordset ?? []
+  } finally {
+    await pool.close()
   }
-  const result = await request.execute(def.procedure)
-  await pool.close()
-  return result.recordset ?? []
 }
 
 const whitelist = loadWhitelist()
@@ -63,9 +74,8 @@ for (const [system, def] of Object.entries(whitelist)) {
     try {
       const params = buildSampleParams(report.params)
       const rows = await runReport(system, report, params)
-      const recordset = (rows as unknown as { columns?: unknown }) ?? []
       const columns = describeColumns(
-        (recordset as { columns?: unknown }).columns,
+        (rows as unknown as { columns?: unknown }).columns,
       )
       results.push({
         ...base,

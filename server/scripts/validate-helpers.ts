@@ -30,11 +30,18 @@ export function buildSampleParams(
 
 /**
  * Dengan akun read-only, SP yang mencoba menulis akan gagal "permission
- * denied" — itu justru deteksi otomatis bahwa SP tidak aman untuk dashboard.
+ * denied" DML (INSERT/UPDATE/DELETE) — itu deteksi otomatis bahwa SP
+ * tidak aman untuk dashboard. Penolakan izin EXECUTE berarti grant
+ * kurang (bukan bukti SP menulis) → masuk kategori lain.
  */
-export function classifyFailure(error: unknown): 'MENULIS_DATA' | 'BELUM_TERVALIDASI' {
+export function classifyFailure(
+  error: unknown,
+): 'MENULIS_DATA' | 'BELUM_TERVALIDASI' {
   const message = error instanceof Error ? error.message : String(error)
-  if (/permission was denied|EXECUTE permission/i.test(message)) {
+  if (
+    /(INSERT|UPDATE|DELETE)\s+permission was denied/i.test(message) ||
+    /The (INSERT|UPDATE|DELETE) permission/i.test(message)
+  ) {
     return 'MENULIS_DATA'
   }
   return 'BELUM_TERVALIDASI'

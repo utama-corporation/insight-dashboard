@@ -34,6 +34,18 @@ describe('classifyFailure', () => {
       "The INSERT permission was denied on the object 'log_table'",
     )
     expect(classifyFailure(err)).toBe('MENULIS_DATA')
+    expect(
+      classifyFailure(new Error('The UPDATE permission was denied')),
+    ).toBe('MENULIS_DATA')
+  })
+
+  it('tidak menganggap penolakan EXECUTE sebagai SP penulis', () => {
+    // EXECUTE denied = grant kurang, bukan bukti SP menulis
+    expect(
+      classifyFailure(
+        new Error('The EXECUTE permission was denied on the object'),
+      ),
+    ).toBe('BELUM_TERVALIDASI')
   })
 
   it('menandai error lain sebagai belum tervalidasi', () => {
