@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm run build && node --watch --env-file-if-exists=.env dist/index.js",
+    "dev": "pnpm run build && node --watch --env-file-if-exists=.env dist/src/index.js",
     "build": "tsc -p tsconfig.json",
     "lint": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",

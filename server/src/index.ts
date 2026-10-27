@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import sql, { type ConnectionPool } from 'mssql'
 import { parse } from 'yaml'
 import { createApp, type RunReport, type Whitelist } from './app.js'
@@ -11,7 +12,7 @@ interface DbCredentials {
 
 function loadWhitelist(): Whitelist {
   const raw = parse(
-    readFileSync(new URL('../reports.yaml', import.meta.url), 'utf8'),
+    readFileSync(path.resolve(process.cwd(), 'reports.yaml'), 'utf8'),
   ) as unknown
   if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
     throw new Error('reports.yaml: missing "systems"')
