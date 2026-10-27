@@ -1,6 +1,6 @@
 # Insight Server
 
-Layanan backend Insight Dashboard: menjalankan **stored procedure dari whitelist** di database SQL Server tiap Sistem dan mengembalikan hasilnya sebagai JSON.
+Layanan Server Insight Dashboard: menjalankan **stored procedure dari whitelist** di database SQL Server tiap Sistem dan mengembalikan hasilnya sebagai JSON.
 
 ## Menjalankan
 

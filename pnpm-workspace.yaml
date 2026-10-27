@@ -1,5 +1,4 @@
 packages:
   - server
 allowBuilds:
-  "@clerk/shared": false
   esbuild: false

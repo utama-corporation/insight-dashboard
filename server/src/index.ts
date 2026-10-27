@@ -3,11 +3,36 @@ import sql, { type ConnectionPool } from 'mssql'
 import { parse } from 'yaml'
 import { createApp, type RunReport, type Whitelist } from './app.js'
 
-const whitelist = parse(
-  readFileSync(new URL('../reports.yaml', import.meta.url), 'utf8'),
-) as Whitelist
+function loadWhitelist(): Whitelist {
+  const raw = parse(
+    readFileSync(new URL('../reports.yaml', import.meta.url), 'utf8'),
+  ) as unknown
+  if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
+    throw new Error('reports.yaml: missing "systems"')
+  }
+  const whitelist = (raw as { systems: unknown }).systems as Whitelist
+  for (const [system, def] of Object.entries(whitelist)) {
+    if (typeof def?.database !== 'string' || !Array.isArray(def.reports)) {
+      throw new Error(`reports.yaml: system "${system}" tidak valid`)
+    }
+    for (const report of def.reports) {
+      if (
+        typeof report.type !== 'string' ||
+        typeof report.procedure !== 'string' ||
+        !Array.isArray(report.params)
+      ) {
+        throw new Error(
+          `reports.yaml: laporan "${system}/${report.type ?? '?'}" tidak valid`,
+        )
+      }
+    }
+  }
+  return whitelist
+}
 
-const pools = new Map<string, ConnectionPool>()
+const whitelist = loadWhitelist()
+
+const pools = new Map<string, Promise<ConnectionPool>>()
 
 function connectionString(system: string): string {
   const envName = `${system.toUpperCase()}_CONNECTION_STRING`
@@ -18,12 +43,17 @@ function connectionString(system: string): string {
   return value
 }
 
-async function getPool(system: string): Promise<ConnectionPool> {
+function getPool(system: string): Promise<ConnectionPool> {
   const existing = pools.get(system)
   if (existing) return existing
-  const pool = await new sql.ConnectionPool(connectionString(system)).connect()
-  pools.set(system, pool)
-  return pool
+  const created = new sql.ConnectionPool(connectionString(system))
+    .connect()
+    .catch((err: unknown) => {
+      pools.delete(system)
+      throw err
+    })
+  pools.set(system, created)
+  return created
 }
 
 const runReport: RunReport = async (system, def, params) => {

@@ -90,7 +90,8 @@ export function createApp({
     try {
       const rows = await runReport(system, def, result.params)
       return res.json({ system, type, rows })
-    } catch {
+    } catch (err) {
+      console.error(`report ${system}/${type} failed`, err)
       return res.status(500).json({ error: 'REPORT_FAILED' })
     }
   })
