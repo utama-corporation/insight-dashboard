@@ -17,7 +17,9 @@ import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
+import { Route as AuthenticatedWpsIndexRouteImport } from './routes/_authenticated/wps/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedPpsIndexRouteImport } from './routes/_authenticated/pps/index'
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedSettingsDisplayRouteImport } from './routes/_authenticated/settings/display'
 import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_authenticated/settings/appearance'
@@ -64,12 +66,22 @@ const AuthenticatedSettingsRouteRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedWpsIndexRoute = AuthenticatedWpsIndexRouteImport.update({
+  id: '/wps/',
+  path: '/wps/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsIndexRoute =
   AuthenticatedSettingsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedSettingsRouteRoute,
   } as any)
+const AuthenticatedPpsIndexRoute = AuthenticatedPpsIndexRouteImport.update({
+  id: '/pps/',
+  path: '/pps/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSettingsNotificationsRoute =
   AuthenticatedSettingsNotificationsRouteImport.update({
     id: '/notifications',
@@ -114,7 +126,9 @@ export interface FileRoutesByFullPath {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/pps/': typeof AuthenticatedPpsIndexRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/wps/': typeof AuthenticatedWpsIndexRoute
 }
 export interface FileRoutesByTo {
   '/401': typeof errors401Route
@@ -128,7 +142,9 @@ export interface FileRoutesByTo {
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/pps': typeof AuthenticatedPpsIndexRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/wps': typeof AuthenticatedWpsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -145,7 +161,9 @@ export interface FileRoutesById {
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
   '/_authenticated/settings/display': typeof AuthenticatedSettingsDisplayRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
+  '/_authenticated/pps/': typeof AuthenticatedPpsIndexRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/_authenticated/wps/': typeof AuthenticatedWpsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -162,7 +180,9 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/pps/'
     | '/settings/'
+    | '/wps/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/401'
@@ -176,7 +196,9 @@ export interface FileRouteTypes {
     | '/settings/appearance'
     | '/settings/display'
     | '/settings/notifications'
+    | '/pps'
     | '/settings'
+    | '/wps'
   id:
     | '__root__'
     | '/_authenticated'
@@ -192,7 +214,9 @@ export interface FileRouteTypes {
     | '/_authenticated/settings/appearance'
     | '/_authenticated/settings/display'
     | '/_authenticated/settings/notifications'
+    | '/_authenticated/pps/'
     | '/_authenticated/settings/'
+    | '/_authenticated/wps/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -262,12 +286,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/wps/': {
+      id: '/_authenticated/wps/'
+      path: '/wps'
+      fullPath: '/wps/'
+      preLoaderRoute: typeof AuthenticatedWpsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/'
       fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedSettingsRouteRoute
+    }
+    '/_authenticated/pps/': {
+      id: '/_authenticated/pps/'
+      path: '/pps'
+      fullPath: '/pps/'
+      preLoaderRoute: typeof AuthenticatedPpsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/settings/notifications': {
       id: '/_authenticated/settings/notifications'
@@ -334,12 +372,16 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedErrorsErrorRoute: typeof AuthenticatedErrorsErrorRoute
+  AuthenticatedPpsIndexRoute: typeof AuthenticatedPpsIndexRoute
+  AuthenticatedWpsIndexRoute: typeof AuthenticatedWpsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedErrorsErrorRoute: AuthenticatedErrorsErrorRoute,
+  AuthenticatedPpsIndexRoute: AuthenticatedPpsIndexRoute,
+  AuthenticatedWpsIndexRoute: AuthenticatedWpsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
