@@ -35,17 +35,6 @@ export default defineConfig({
   test: {
     silent: 'passed-only',
     unstubEnvs: true,
-    // Pre-bundle deps yang terdeteksi saat test berjalan — tanpa ini Vite
-    // reload di tengah run dan membuat salinan React kedua (invalid hook call)
-    optimizer: {
-      include: [
-        'react-dom/client',
-        '@tanstack/react-query-devtools',
-        '@tanstack/react-router-devtools',
-        'react-top-loading-bar',
-        'recharts',
-      ],
-    },
     exclude: ['server/**', 'node_modules/**', 'dist/**'],
     browser: {
       enabled: true,
