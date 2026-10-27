@@ -48,11 +48,18 @@ export function classifyFailure(
 }
 
 export function describeColumns(meta: unknown): ColumnInfo[] {
-  if (!Array.isArray(meta)) return []
-  return meta
-    .filter((c) => c !== null && typeof c === 'object' && 'name' in c)
-    .map((c) => {
-      const col = c as { name: unknown; type: unknown }
-      return { name: String(col.name), type: String(col.type ?? '?') }
-    })
+  const entries = Array.isArray(meta) ? meta : Object.values(meta ?? {})
+  return entries
+    .filter(
+      (c): c is { name: unknown; type?: unknown } =>
+        c !== null && typeof c === 'object' && 'name' in c,
+    )
+    .map((c) => ({ name: String(c.name), type: sqlTypeName(c.type) }))
+}
+
+function sqlTypeName(type: unknown): string {
+  if (typeof type === 'function') {
+    return (type as { declaration?: string }).declaration ?? type.name ?? '?'
+  }
+  return typeof type === 'string' ? type : '?'
 }

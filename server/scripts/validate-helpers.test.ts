@@ -64,4 +64,21 @@ describe('describeColumns', () => {
       { name: 'Output', type: 'float' },
     ])
   })
+
+  it('menangani map kolom recordset mssql (bukan array)', () => {
+    const typeOf = (declaration: string) =>
+      Object.assign(function () {}, { declaration })
+    const meta = {
+      Tanggal: { name: 'Tanggal', type: typeOf('date') },
+      Output: { name: 'Output', type: typeOf('float') },
+    }
+    expect(describeColumns(meta)).toEqual([
+      { name: 'Tanggal', type: 'date' },
+      { name: 'Output', type: 'float' },
+    ])
+  })
+
+  it('mengembalikan daftar kosong untuk metadata tak dikenal', () => {
+    expect(describeColumns(undefined)).toEqual([])
+  })
 })

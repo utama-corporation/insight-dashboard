@@ -60,6 +60,8 @@ function credentials(system: string): {
   return { server, user, password }
 }
 
+let lastColumns: ColumnInfo[] = []
+
 const runReport: RunReport = async (system, def, params, database) => {
   const creds = credentials(system)
   const pool = await new sql.ConnectionPool({
@@ -81,6 +83,7 @@ const runReport: RunReport = async (system, def, params, database) => {
       }
     }
     const result = await request.execute(def.procedure)
+    lastColumns = describeColumns(result.recordset?.columns)
     return result.recordset ?? []
   } finally {
     await pool.close()
@@ -96,9 +99,7 @@ for (const [system, def] of Object.entries(whitelist)) {
     try {
       const params = buildSampleParams(report.params)
       const rows = await runReport(system, report, params, def.database)
-      const columns = describeColumns(
-        (rows as unknown as { columns?: unknown }).columns,
-      )
+      const columns = lastColumns
       results.push({
         ...base,
         status: 'OK',
