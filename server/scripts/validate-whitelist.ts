@@ -1,6 +1,6 @@
 /**
  * Validasi whitelist terhadap database Production via akun read-only
- * (#YOUR_READ_ONLY_USER). Untuk setiap laporan: jalankan SP dengan contoh params,
+ * (lihat .env). Untuk setiap laporan: jalankan SP dengan contoh params,
  * catat bentuk kolom + jumlah baris; SP yang mencoba menulis data
  * ditandai MENULIS_DATA (gagal permission DML) dan harus dikeluarkan
  * dari whitelist. Jalankan di luar jam sibuk.

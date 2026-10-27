@@ -6,7 +6,7 @@ Layanan Server Insight Dashboard: menjalankan **stored procedure dari whitelist*
 
 ```bash
 pnpm install
-cp .env.example .env   # isi kredensial read-only (#YOUR_READ_ONLY_USER)
+cp .env.example .env   # isi kredensial read-only
 pnpm --filter server dev
 ```
 
@@ -47,5 +47,5 @@ Tambah entry `reports` di `reports.yaml` — selesai.
 
 - Hanya SP dalam whitelist yang bisa dijalankan; type/params di luar whitelist ditolak (400).
 - Params dikirim sebagai typed input (bukan string concat) — tidak ada celah SQL injection.
-- Gunakan akun SQL read-only (mis. `#YOUR_READ_ONLY_USER`): `db_datareader` + `GRANT EXECUTE` per SP. Jangan pernah memakai akun tulis.
+- Gunakan akun SQL read-only khusus: `db_datareader` + `GRANT EXECUTE` per SP. Jangan pernah memakai akun tulis.
 - Kredensial hanya di `.env` (tidak di-commit).
