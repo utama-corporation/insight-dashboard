@@ -44,5 +44,8 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Server lint, build, test
+        run: pnpm --filter server lint && pnpm --filter server build && pnpm --filter server test
+
       - name: Build the project
         run: pnpm build

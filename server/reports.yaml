@@ -1,0 +1,56 @@
+# Whitelist laporan per Sistem.
+# Menambah Sistem baru = tambah blok di sini + variabel <SYSTEM>_CONNECTION_STRING di .env.
+# Menambah laporan baru = tambah entry `reports` — tanpa mengubah kode.
+systems:
+  wps:
+    database: WPS
+    reports:
+      - type: produksi-semua-mesin
+        procedure: SPWps_LapProduksiSemuaMesin
+        params:
+          - name: tglAwal
+            type: date
+          - name: tglAkhir
+            type: date
+      - type: rekap-mutasi
+        procedure: SP_LapRekapMutasiV2
+        params:
+          - name: tglAwal
+            type: date
+          - name: tglAkhir
+            type: date
+      - type: rendemen-semua-proses
+        procedure: SP_LapRekapRendemenSemuaProses
+        params:
+          - name: tglAwal
+            type: date
+          - name: tglAkhir
+            type: date
+  pps:
+    database: PPS
+    reports:
+      - type: rekap-produksi-broker
+        procedure: SP_LapRekapProduksiBroker
+        params:
+          - name: perTgl
+            type: date
+      - type: rekap-produksi-crusher
+        procedure: SP_LapRekapProduksiCrusher
+        params:
+          - name: perTgl
+            type: date
+      - type: rekap-produksi-gilingan
+        procedure: SP_LapRekapProduksiGilingan
+        params:
+          - name: perTgl
+            type: date
+      - type: rekap-produksi-mixer
+        procedure: SP_LapRekapProduksiMixer
+        params:
+          - name: perTgl
+            type: date
+      - type: rekap-produksi-washing
+        procedure: SP_LapRekapProduksiWashing
+        params:
+          - name: perTgl
+            type: date
