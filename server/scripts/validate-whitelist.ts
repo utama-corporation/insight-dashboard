@@ -12,6 +12,7 @@
  * ke DBA untuk cek silang ke definisi SP bila ragu.
  */
 import { readFileSync, writeFileSync } from 'node:fs'
+import path from 'node:path'
 import sql from 'mssql'
 import { parse } from 'yaml'
 import type { RunReport, Whitelist } from '../src/app.ts'
@@ -34,7 +35,7 @@ interface ResultRow {
 
 function loadWhitelist(): Whitelist {
   const raw = parse(
-    readFileSync(new URL('../reports.yaml', import.meta.url), 'utf8'),
+    readFileSync(path.resolve(process.cwd(), 'reports.yaml'), 'utf8'),
   ) as unknown
   if (raw === null || typeof raw !== 'object' || !('systems' in raw)) {
     throw new Error('reports.yaml: missing "systems"')
