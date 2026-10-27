@@ -9,6 +9,12 @@ import {
   YAxis,
 } from 'recharts'
 import { fetchReport } from '@/lib/api'
+import {
+  deltaPct,
+  formatNumber,
+  periodBounds,
+  type Period,
+} from '@/lib/report-metrics'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Header } from '@/components/layout/header'
@@ -17,7 +23,6 @@ import { TopNav } from '@/components/layout/top-nav'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { formatNumber, periodBounds, type Period } from '../wps/metrics'
 
 const topNav = [{ title: 'PPS', href: '/pps', isActive: true }]
 
@@ -83,13 +88,33 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
     },
   })
 
+  // shortcut: 1 call per proses per hari (35 call/paket 7 hari), belum ada
+  // SP periode teragregasi — ganti saat whitelist SP periode tervalidasi (#9)
   const chartData = trend.data ?? []
-  const lastLoaded = (proses: Proses) => {
+  const lastNonZero = (proses: Proses) => {
     const last =
       [...chartData].reverse().find((d) => Number(d[proses]) > 0) ??
       chartData[chartData.length - 1]
     return last ? Number(last[proses]) || 0 : 0
   }
+
+  // Insight rule-based dari data tren yang sudah ada: rata-rata 3 hari
+  // terakhir vs 3 hari sebelumnya.
+  const totalPerDay = chartData.map((day) =>
+    PROSES.reduce((total, { proses }) => total + day[proses], 0)
+  )
+  const avg = (rows: number[]) =>
+    rows.length === 0
+      ? 0
+      : rows.reduce((total, v) => total + v, 0) / rows.length
+  const last3 = avg(totalPerDay.slice(-3))
+  const prev3 = avg(totalPerDay.slice(-6, -3))
+  const deltaTren = last3 > 0 || prev3 > 0 ? deltaPct(last3, prev3) : 0
+  const insight = trend.isLoading
+    ? 'Memuat data produksi…'
+    : deltaTren === 0
+      ? 'Produksi plastik stabil dalam 7 hari terakhir.'
+      : `Produksi plastik ${deltaTren > 0 ? 'naik' : 'turun'} ${Math.abs(deltaTren)}% dalam 7 hari terakhir.`
 
   return (
     <>
@@ -113,6 +138,13 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
           />
         </div>
 
+        <p
+          className='mb-4 rounded-md border bg-muted/40 px-4 py-2 text-sm'
+          data-testid='insight-produksi'
+        >
+          {insight}
+        </p>
+
         <div className='mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5'>
           {PROSES.map(({ proses, label }) => (
             <Card key={proses}>
@@ -126,7 +158,7 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
                   className='text-2xl font-bold'
                   data-testid={`kpi-proses-${proses}`}
                 >
-                  {formatNumber(lastLoaded(proses))}
+                  {formatNumber(lastNonZero(proses))}
                 </div>
               </CardContent>
             </Card>

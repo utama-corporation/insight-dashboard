@@ -1,14 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { fetchReport } from '@/lib/api'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Header } from '@/components/layout/header'
-import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
 import {
   deltaPct,
   formatDelta,
@@ -18,7 +10,15 @@ import {
   sumBy,
   weightedPct,
   type Period,
-} from './metrics'
+} from '@/lib/report-metrics'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Header } from '@/components/layout/header'
+import { Main } from '@/components/layout/main'
+import { TopNav } from '@/components/layout/top-nav'
+import { ProfileDropdown } from '@/components/profile-dropdown'
+import { Search } from '@/components/search'
+import { ThemeSwitch } from '@/components/theme-switch'
 
 const topNav = [{ title: 'WPS', href: '/wps', isActive: true }]
 
@@ -38,14 +38,23 @@ function KpiCard({
   value,
   suffix,
   delta,
+  deltaUnit = 'percent',
   testId,
 }: {
   label: string
   value: string
   suffix?: string
   delta: number | undefined
+  // 'percent' = Δ relatif; 'pp' = perbedaan poin persentase
+  deltaUnit?: 'percent' | 'pp'
   testId: string
 }) {
+  const deltaText =
+    delta === undefined
+      ? undefined
+      : deltaUnit === 'pp'
+        ? `${delta > 0 ? '+' : ''}${delta} pp`
+        : formatDelta(delta)
   return (
     <Card>
       <CardHeader>
@@ -58,12 +67,12 @@ function KpiCard({
           {value}
           {suffix}
         </div>
-        {delta !== undefined && (
+        {deltaText !== undefined && (
           <p
             className='text-xs text-muted-foreground'
             data-testid={`delta-${testId.replace('kpi-', '')}`}
           >
-            {formatDelta(delta)} vs periode sebelumnya
+            {deltaText} vs periode sebelumnya
           </p>
         )}
       </CardContent>
@@ -154,6 +163,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             value={formatNumber(realisasiCur)}
             suffix='%'
             delta={loaded ? realisasiCur - realisasiPrev : undefined}
+            deltaUnit='pp'
             testId='kpi-realisasi'
           />
           <KpiCard
@@ -161,6 +171,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             value={formatNumber(rendemenCurPct)}
             suffix='%'
             delta={loaded ? rendemenCurPct - rendemenPrevPct : undefined}
+            deltaUnit='pp'
             testId='kpi-rendemen'
           />
           <KpiCard

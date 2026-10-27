@@ -119,6 +119,15 @@ describe('PpsPage — KPI + tren per proses', () => {
       .toBeInTheDocument()
   })
 
+  it('menampilkan kalimat insight tren', async () => {
+    const screen = await renderPage()
+
+    // Fixture konstan per hari -> rata-rata 3 vs 3 hari identik -> stabil
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('stabil dalam 7 hari terakhir')
+  })
+
   it('hanya memanggil laporan sistem PPS', async () => {
     await renderPage()
 

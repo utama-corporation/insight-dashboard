@@ -172,4 +172,20 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       }
     })
   })
+
+  it('memperbarui KPI saat periode diganti', async () => {
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('100')
+
+    const picker = screen.getByLabelText('Pilih periode')
+    await picker.fill('2026-09')
+
+    // Bulan 2026-09: cur memakai fixture "prev" (Output 50) — Δ 0%
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('50')
+  })
 })
