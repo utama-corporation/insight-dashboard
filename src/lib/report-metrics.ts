@@ -49,7 +49,7 @@ export function latestTotal(rows: ReportRow[], key: string): number {
   return last ? num(last, key) : 0
 }
 
-/** Batas periode dari 'YYYY-MM': bulan terpilih (dipotong hari ini bila berjalan) + jendela sama panjang di bulan sebelumnya. */
+/** Batas periode dari 'YYYY-MM': bulan terpilih (dipotong hari ini bila berjalan) + jendela di bulan sebelumnya (dipotong ke akhir bulan bila lebih pendek). */
 export function periodBounds(
   month: string,
   today = new Date()
