@@ -68,6 +68,40 @@ export function lowestRendemen(
   return best
 }
 
+/** Baris rendemen tak masuk akal: Output > Input (>100%), dikelompokkan per nama. */
+export interface RendemenAnomaly {
+  name: string
+  rows: number
+  maxPct: number
+  maxDate: string
+}
+
+export function rendemenAnomalies(
+  rows: ReportRow[],
+  groupKey: string
+): RendemenAnomaly[] {
+  const byName = new Map<string, RendemenAnomaly>()
+  for (const row of rows) {
+    const input = num(row, 'Input')
+    const output = num(row, 'Output')
+    const name = String(row[groupKey] ?? '')
+    if (input <= 0 || output <= input || !name) continue
+    const pct = Math.round((output / input) * 100)
+    const date = String(row.Tanggal ?? '').slice(0, 10)
+    const found = byName.get(name)
+    if (!found) {
+      byName.set(name, { name, rows: 1, maxPct: pct, maxDate: date })
+    } else {
+      found.rows += 1
+      if (pct > found.maxPct) {
+        found.maxPct = pct
+        found.maxDate = date
+      }
+    }
+  }
+  return [...byName.values()].sort((a, b) => b.maxPct - a.maxPct)
+}
+
 export const MUTASI_KEYS = [
   'KB',
   'ST',

@@ -19,6 +19,7 @@ import { TopNav } from '@/components/layout/top-nav'
 import { ProfileDropdown } from '@/components/profile-dropdown'
 import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
+import { rendemenAnomalies } from './category-insights'
 import {
   MutationCategoryChart,
   ProductionMachineChart,
@@ -128,6 +129,9 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   ].some((query) => query.isError)
 
   const deltaProduksi = loaded ? deltaPct(outputCur, outputPrev) : undefined
+  const anomalies = rendemenAnomalies(rendemenCur.data ?? [], 'GRP')
+  const anomalyRows = anomalies.reduce((total, a) => total + a.rows, 0)
+  const topAnomaly = anomalies[0]
   const insight = failed
     ? 'Gagal memuat data. Periksa koneksi ke server.'
     : deltaProduksi === undefined
@@ -164,6 +168,17 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
         >
           {insight}
         </p>
+
+        {loaded && topAnomaly && (
+          <p
+            className='mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
+            data-testid='insight-anomali'
+          >
+            Anomali data: {anomalyRows} baris rendemen di atas 100% (tertinggi{' '}
+            {formatNumber(topAnomaly.maxPct)}% — {topAnomaly.name},{' '}
+            {topAnomaly.maxDate}).
+          </p>
+        )}
 
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
           <KpiCard

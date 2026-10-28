@@ -164,6 +164,32 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('—')
   })
 
+  it('menandai rendemen di atas 100% sebagai anomali data', async () => {
+    mockFetchReport.mockImplementation(async (_system, type, params) => {
+      const isCur = params.tglAwal?.startsWith('2026-10')
+      switch (type) {
+        case 'produksi-semua-mesin':
+          return isCur ? produksiCur : produksiPrev
+        case 'rekap-mutasi':
+          return isCur ? mutasiCur : mutasiPrev
+        case 'rendemen-semua-proses':
+          return isCur
+            ? [{ Tanggal: '2026-10-16', Input: 1, Output: 33, GRP: 'MOULDING' }]
+            : rendemenPrev
+        default:
+          throw new Error(`unexpected report type ${type}`)
+      }
+    })
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('insight-anomali'))
+      .toHaveTextContent('1 baris rendemen di atas 100%')
+    await expect
+      .element(screen.getByTestId('insight-anomali'))
+      .toHaveTextContent('3.300% — MOULDING, 2026-10-16')
+  })
+
   it('membandingkan dengan periode sebelumnya (Δ%)', async () => {
     const screen = await renderPage()
 
