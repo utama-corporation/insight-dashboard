@@ -27,6 +27,7 @@ pnpm dev:all
 Client: `http://localhost:5173` — API: `http://localhost:3001` (health check `GET /health`).
 
 Alternatif dua terminal: `pnpm dev` (client) dan `pnpm dev:server` (server).
+`dev:server` membangun sekali lalu menjalankan hasil build — perubahan `server/src` perlu dijalankan ulang.
 Untuk build lalu jalankan sekali: `pnpm --filter server start`.
 
 ## Verifikasi

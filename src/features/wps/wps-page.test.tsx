@@ -152,6 +152,18 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('Memuat data produksi…')
   })
 
+  it('menampilkan pesan gagal saat laporan gagal dimuat', async () => {
+    mockFetchReport.mockRejectedValue(new Error('server down'))
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('Gagal memuat data')
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('—')
+  })
+
   it('membandingkan dengan periode sebelumnya (Δ%)', async () => {
     const screen = await renderPage()
 

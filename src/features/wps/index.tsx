@@ -118,10 +118,19 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
     mutasiPrev.isSuccess &&
     rendemenCur.isSuccess &&
     rendemenPrev.isSuccess
+  const failed = [
+    produksiCur,
+    produksiPrev,
+    mutasiCur,
+    mutasiPrev,
+    rendemenCur,
+    rendemenPrev,
+  ].some((query) => query.isError)
 
   const deltaProduksi = loaded ? deltaPct(outputCur, outputPrev) : undefined
-  const insight =
-    deltaProduksi === undefined
+  const insight = failed
+    ? 'Gagal memuat data. Periksa koneksi ke server.'
+    : deltaProduksi === undefined
       ? 'Memuat data produksi…'
       : deltaProduksi === 0
         ? 'Produksi stabil dibanding periode sebelumnya.'

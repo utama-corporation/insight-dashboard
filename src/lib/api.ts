@@ -1,7 +1,10 @@
 import axios from 'axios'
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001',
+  // Build produksi tanpa env memakai path relatif (di-proxy/deploy bersama API).
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? 'http://localhost:3001' : undefined),
 })
 
 export type ReportRow = Record<string, unknown>
