@@ -1,21 +1,15 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
 import { fetchReport } from '@/lib/api'
 import { deltaPct, formatNumber, periodBounds } from '@/lib/report-metrics'
 import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
+
+const PpsTrendChart = lazy(() =>
+  import('./trend-chart').then((m) => ({ default: m.PpsTrendChart }))
+)
 
 const PROSES = [
   { proses: 'broker', label: 'Broker' },
@@ -27,20 +21,6 @@ const PROSES = [
 
 type Proses = (typeof PROSES)[number]['proses']
 
-const tick = { fontSize: 12, fill: 'var(--muted-foreground)' }
-const tooltip = {
-  contentStyle: {
-    borderRadius: 6,
-    border: '1px solid var(--border)',
-    background: 'var(--popover)',
-    color: 'var(--popover-foreground)',
-    fontSize: 12,
-    padding: '6px 8px',
-  },
-  labelStyle: { color: 'var(--muted-foreground)' },
-  itemStyle: { color: 'var(--foreground)' },
-}
-
 /** Tanggal `i` hari sebelum `end` (inklusif). */
 function daysBefore(end: string, i: number): string {
   const date = new Date(`${end}T00:00:00Z`)
@@ -51,7 +31,10 @@ function daysBefore(end: string, i: number): string {
 /** dd/MM — urutan hari tetap terbaca tanpa bergantung pada locale. */
 const dayLabel = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 
-type TrendRow = { tanggal: string; label: string } & Record<Proses, number>
+export type TrendRow = { tanggal: string; label: string } & Record<
+  Proses,
+  number
+>
 
 export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   // Tren 7 hari tidak difilter per bulan — selalu 7 hari terakhir sampai
@@ -182,57 +165,13 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
             <p className='text-xs text-muted-foreground'>7 hari, kg</p>
           </div>
           <div data-testid='tren-produksi-pps' className='h-80 w-full'>
-            <ResponsiveContainer width='100%' height='100%'>
-              <LineChart
-                data={chartData}
-                margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
-              >
-                <CartesianGrid vertical={false} stroke='var(--border)' />
-                <XAxis
-                  dataKey='label'
-                  axisLine={false}
-                  tickLine={false}
-                  tick={tick}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={tick}
-                  width={52}
-                />
-                <Tooltip
-                  {...tooltip}
-                  formatter={(value, name) => [
-                    `${formatNumber(Number(value))} kg`,
-                    name,
-                  ]}
-                />
-                <Legend
-                  verticalAlign='top'
-                  align='left'
-                  iconType='circle'
-                  iconSize={6}
-                  wrapperStyle={{ fontSize: 12, paddingBottom: 12 }}
-                  formatter={(value) => (
-                    <span style={{ color: 'var(--muted-foreground)' }}>
-                      {value}
-                    </span>
-                  )}
-                />
-                {PROSES.map(({ proses, label }, i) => (
-                  <Line
-                    key={proses}
-                    type='linear'
-                    dataKey={proses}
-                    name={label}
-                    stroke={`var(--chart-${i + 1})`}
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 3 }}
-                  />
-                ))}
-              </LineChart>
-            </ResponsiveContainer>
+            <Suspense
+              fallback={
+                <div className='h-full w-full animate-pulse rounded-md bg-muted' />
+              }
+            >
+              <PpsTrendChart data={chartData} />
+            </Suspense>
           </div>
         </div>
       </Main>

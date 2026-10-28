@@ -62,6 +62,7 @@ function getPool(system: string, database: string): Promise<ConnectionPool> {
     user: creds.user,
     password: creds.password,
     database,
+    pool: { max: 20, min: 2, idleTimeoutMillis: 30000 },
     options: { encrypt: false, trustServerCertificate: true },
   })
     .connect()

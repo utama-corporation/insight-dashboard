@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { fetchReport } from '@/lib/api'
 import {
@@ -16,11 +16,22 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { rendemenAnomalies } from './category-insights'
-import {
-  MutationCategoryChart,
-  ProductionMachineChart,
-  RendemenGroupChart,
-} from './components/category-charts'
+
+const ProductionMachineChart = lazy(() =>
+  import('./components/category-charts').then((m) => ({
+    default: m.ProductionMachineChart,
+  }))
+)
+const MutationCategoryChart = lazy(() =>
+  import('./components/category-charts').then((m) => ({
+    default: m.MutationCategoryChart,
+  }))
+)
+const RendemenGroupChart = lazy(() =>
+  import('./components/category-charts').then((m) => ({
+    default: m.RendemenGroupChart,
+  }))
+)
 
 function useReport(type: string, period: Period) {
   return useQuery({
@@ -168,15 +179,25 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
         </KpiStrip>
 
         {loaded && (
-          <div className='mt-4 grid gap-4 lg:grid-cols-2'>
-            <ProductionMachineChart
-              className='lg:col-span-2'
-              current={produksiCur.data ?? []}
-              previous={produksiPrev.data ?? []}
-            />
-            <MutationCategoryChart current={mutasiCur.data ?? []} />
-            <RendemenGroupChart current={rendemenCur.data ?? []} />
-          </div>
+          <Suspense
+            fallback={
+              <div className='mt-4 grid gap-4 lg:grid-cols-2'>
+                <div className='h-64 w-full animate-pulse rounded-lg border bg-muted lg:col-span-2' />
+                <div className='h-64 w-full animate-pulse rounded-lg border bg-muted' />
+                <div className='h-64 w-full animate-pulse rounded-lg border bg-muted' />
+              </div>
+            }
+          >
+            <div className='mt-4 grid gap-4 lg:grid-cols-2'>
+              <ProductionMachineChart
+                className='lg:col-span-2'
+                current={produksiCur.data ?? []}
+                previous={produksiPrev.data ?? []}
+              />
+              <MutationCategoryChart current={mutasiCur.data ?? []} />
+              <RendemenGroupChart current={rendemenCur.data ?? []} />
+            </div>
+          </Suspense>
         )}
       </Main>
     </>
