@@ -74,7 +74,12 @@ function getPool(system: string, database: string): Promise<ConnectionPool> {
   return created
 }
 
+const reportCache = new Map<string, { rows: unknown[]; expires: number }>()
+
 const runReport: RunReport = async (system, def, params, database) => {
+  const cacheKey = JSON.stringify({ system, type: def.type, params, database })
+  const cached = reportCache.get(cacheKey)
+  if (cached && cached.expires > Date.now()) return cached.rows
   const pool = await getPool(system, database)
   const request = pool.request()
   for (const p of def.params) {
@@ -83,7 +88,9 @@ const runReport: RunReport = async (system, def, params, database) => {
     }
   }
   const result = await request.execute(def.procedure)
-  return result.recordset ?? []
+  const rows = result.recordset ?? []
+  reportCache.set(cacheKey, { rows, expires: Date.now() + 30_000 })
+  return rows
 }
 
 const port = Number(process.env.PORT ?? 3001)
