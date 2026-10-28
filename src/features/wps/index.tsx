@@ -174,9 +174,10 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             className='mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
             data-testid='insight-anomali'
           >
-            Anomali data: {anomalyRows} baris rendemen di atas 100% (tertinggi{' '}
-            {formatNumber(topAnomaly.maxPct)}% — {topAnomaly.name},{' '}
-            {topAnomaly.maxDate}).
+            Anomali data: {formatNumber(anomalyRows)} baris rendemen di atas
+            100% (tertinggi {formatNumber(topAnomaly.maxPct)}% —{' '}
+            {topAnomaly.name}
+            {topAnomaly.maxDate && `, ${topAnomaly.maxDate}`}).
           </p>
         )}
 

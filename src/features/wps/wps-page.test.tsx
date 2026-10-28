@@ -138,6 +138,8 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
     await expect
       .element(screen.getByTestId('kpi-mutasi'))
       .toHaveTextContent('90')
+    // Data wajar -> tidak ada banner anomali
+    expect(document.querySelector('[data-testid="insight-anomali"]')).toBeNull()
   })
 
   it('menampilkan placeholder, bukan 0, saat data belum termuat', async () => {

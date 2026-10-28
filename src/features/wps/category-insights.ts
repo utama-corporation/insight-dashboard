@@ -86,7 +86,7 @@ export function rendemenAnomalies(
     const output = num(row, 'Output')
     const name = String(row[groupKey] ?? '')
     if (input <= 0 || output <= input || !name) continue
-    const pct = Math.round((output / input) * 100)
+    const pct = (output / input) * 100
     const date = String(row.Tanggal ?? '').slice(0, 10)
     const found = byName.get(name)
     if (!found) {

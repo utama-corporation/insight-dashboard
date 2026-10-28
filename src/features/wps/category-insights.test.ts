@@ -22,4 +22,14 @@ describe('rendemenAnomalies', () => {
     ]
     expect(rendemenAnomalies(rows, 'GRP')).toEqual([])
   })
+
+  it('mempertahankan puncak dan membiarkan tanggal kosong', () => {
+    const rows = [
+      { GRP: 'S4S', Input: 10, Output: 12 },
+      { Tanggal: '2026-10-02', GRP: 'S4S', Input: 10, Output: 11 },
+    ]
+    expect(rendemenAnomalies(rows, 'GRP')).toEqual([
+      { name: 'S4S', rows: 2, maxPct: 120, maxDate: '' },
+    ])
+  })
 })
