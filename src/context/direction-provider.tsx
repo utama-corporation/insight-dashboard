@@ -50,5 +50,3 @@ export function DirectionProvider({ children }: { children: React.ReactNode }) {
     </DirectionContext>
   )
 }
-
-// eslint-disable-next-line react-refresh/only-export-components

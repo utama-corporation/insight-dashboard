@@ -45,50 +45,63 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
       : new Date().toISOString().slice(0, 10)
   )
 
-  // Trend 7 hari terakhir: 1 snapshot per proses per hari.
-  const trendDays = [6, 5, 4, 3, 2, 1, 0].map((i) => daysBefore(endDate, i))
-  const trend = useQuery({
-    queryKey: ['pps', 'trend', trendDays],
-    queryFn: async () => {
-      const rows = await Promise.all(
-        trendDays.flatMap((tanggal) =>
-          PROSES.map(async ({ proses }) => ({
-            tanggal,
-            proses,
-            berat: (
-              await fetchReport('pps', `rekap-produksi-${proses}`, {
-                perTgl: tanggal,
-              })
-            ).reduce((total, row) => total + (Number(row.Berat) || 0), 0),
-          }))
-        )
-      )
-      return trendDays.map((tanggal) => {
-        const day: TrendRow = {
+  // Tren 7 hari terakhir: 1 snapshot per proses per hari.
+  const fullDays = [6, 5, 4, 3, 2, 1, 0].map((i) => daysBefore(endDate, i))
+  // KPI hanya butuh 3 hari terakhir — dimuat duluan agar angka muncul cepat.
+  const kpiDays = [2, 1, 0].map((i) => daysBefore(endDate, i))
+
+  const fetchTrend = async (days: string[]) => {
+    const rows = await Promise.all(
+      days.flatMap((tanggal) =>
+        PROSES.map(async ({ proses }) => ({
           tanggal,
-          label: dayLabel(tanggal),
-          broker: 0,
-          crusher: 0,
-          gilingan: 0,
-          mixer: 0,
-          washing: 0,
-        }
-        for (const { proses } of PROSES) {
-          day[proses] =
-            rows.find((r) => r.tanggal === tanggal && r.proses === proses)
-              ?.berat ?? 0
-        }
-        return day
-      })
-    },
+          proses,
+          berat: (
+            await fetchReport('pps', `rekap-produksi-${proses}`, {
+              perTgl: tanggal,
+            })
+          ).reduce((total, row) => total + (Number(row.Berat) || 0), 0),
+        }))
+      )
+    )
+    return days.map((tanggal) => {
+      const day: TrendRow = {
+        tanggal,
+        label: dayLabel(tanggal),
+        broker: 0,
+        crusher: 0,
+        gilingan: 0,
+        mixer: 0,
+        washing: 0,
+      }
+      for (const { proses } of PROSES) {
+        day[proses] =
+          rows.find((r) => r.tanggal === tanggal && r.proses === proses)
+            ?.berat ?? 0
+      }
+      return day
+    })
+  }
+
+  // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  const kpiTrend = useQuery({
+    queryKey: ['pps', 'kpi-trend', kpiDays],
+    queryFn: () => fetchTrend(kpiDays),
+    placeholderData: keepPreviousData,
+  })
+  // eslint-disable-next-line @tanstack/query/exhaustive-deps
+  const fullTrend = useQuery({
+    queryKey: ['pps', 'trend', fullDays],
+    queryFn: () => fetchTrend(fullDays),
     placeholderData: keepPreviousData,
   })
 
   // shortcut: 1 call per proses per hari (35 call/paket 7 hari), belum ada
   // SP periode teragregasi — ganti saat whitelist SP periode tervalidasi (#9)
-  const chartData = trend.data ?? []
+  const chartData = fullTrend.data ?? []
+  const kpiData = kpiTrend.data ?? []
   const lastPoint = (proses: Proses) => {
-    const row = [...chartData].reverse().find((d) => Number(d[proses]) > 0)
+    const row = [...kpiData].reverse().find((d) => Number(d[proses]) > 0)
     return row
       ? { value: Number(row[proses]), date: dayLabel(row.tanggal) }
       : undefined
@@ -106,9 +119,9 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   const last3 = avg(totalPerDay.slice(-3))
   const prev3 = avg(totalPerDay.slice(-6, -3))
   const deltaTren = last3 > 0 || prev3 > 0 ? deltaPct(last3, prev3) : 0
-  const insight = trend.isError
+  const insight = fullTrend.isError
     ? 'Gagal memuat data. Periksa koneksi ke server.'
-    : trend.isLoading
+    : fullTrend.isLoading
       ? 'Memuat data produksi…'
       : deltaTren === 0
         ? 'Produksi plastik stabil dalam 7 hari terakhir.'
@@ -133,7 +146,7 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
 
         <p
           className={
-            trend.isError
+            fullTrend.isError
               ? 'text-base text-negative'
               : 'text-base text-foreground'
           }
@@ -149,7 +162,9 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
               <Kpi
                 key={proses}
                 label={`${label} (kg)`}
-                value={trend.isSuccess ? formatNumber(point?.value ?? 0) : '—'}
+                value={
+                  kpiTrend.isSuccess ? formatNumber(point?.value ?? 0) : '—'
+                }
                 caption={point ? `per ${point.date}` : '7 hari terakhir'}
                 testId={`kpi-proses-${proses}`}
               />
@@ -165,13 +180,17 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
             <p className='text-xs text-muted-foreground'>7 hari, kg</p>
           </div>
           <div data-testid='tren-produksi-pps' className='h-80 w-full'>
-            <Suspense
-              fallback={
-                <div className='h-full w-full animate-pulse rounded-md bg-muted' />
-              }
-            >
-              <PpsTrendChart data={chartData} />
-            </Suspense>
+            {fullTrend.isLoading ? (
+              <div className='h-full w-full animate-pulse rounded-md bg-muted' />
+            ) : (
+              <Suspense
+                fallback={
+                  <div className='h-full w-full animate-pulse rounded-md bg-muted' />
+                }
+              >
+                <PpsTrendChart data={chartData} />
+              </Suspense>
+            )}
           </div>
         </div>
       </Main>
