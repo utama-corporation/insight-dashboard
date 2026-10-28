@@ -49,7 +49,8 @@ export function largestCategory(
   return best
 }
 
-/** GRP dengan rendemen tertimbang terendah. */ export function lowestRendemen(
+/** GRP dengan rendemen tertimbang terendah. */
+export function lowestRendemen(
   rows: ReportRow[],
   groupKey: string
 ): { name: string; pct: number } | undefined {

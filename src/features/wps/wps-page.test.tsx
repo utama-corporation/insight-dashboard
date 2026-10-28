@@ -81,7 +81,7 @@ const rendemenPrev = [
   { Tanggal: '2026-09-27', Input: 100, Output: 50, GRP: 'S4S' },
 ]
 
-async function renderPage() {
+async function renderPage(initialMonth = '2026-10') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -91,7 +91,7 @@ async function renderPage() {
         <ThemeProvider>
           <LayoutProvider>
             <SidebarProvider>
-              <WpsPage initialMonth='2026-10' />
+              <WpsPage initialMonth={initialMonth} />
             </SidebarProvider>
           </LayoutProvider>
         </ThemeProvider>
@@ -213,6 +213,14 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent(
         'Produksi Oktober 2026: 100 m³ — naik 100% dibanding September 2026 (50).'
       )
+  })
+
+  it('insight rollover tahun: Januari membandingkan Desember', async () => {
+    const screen = await renderPage('2027-01')
+
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('dibanding Desember 2026 (50).')
   })
 
   it('hanya memanggil laporan sistem WPS', async () => {
