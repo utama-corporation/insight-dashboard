@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { fetchReport } from '@/lib/api'
 import {
   deltaPct,
@@ -30,6 +30,7 @@ function useReport(type: string, period: Period) {
         tglAwal: period.awal,
         tglAkhir: period.akhir,
       }),
+    placeholderData: keepPreviousData,
   })
 }
 

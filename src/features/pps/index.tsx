@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import {
   CartesianGrid,
   Legend,
@@ -98,6 +98,7 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
         return day
       })
     },
+    placeholderData: keepPreviousData,
   })
 
   // shortcut: 1 call per proses per hari (35 call/paket 7 hari), belum ada
