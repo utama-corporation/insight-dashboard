@@ -52,6 +52,7 @@ function credentials(system: string): DbCredentials {
 
 const pools = new Map<string, Promise<ConnectionPool>>()
 
+const cacheTtl = Number(process.env.REPORT_CACHE_MS ?? 300_000) // 5 menit; set env untuk menyingkat
 function getPool(system: string, database: string): Promise<ConnectionPool> {
   const key = `${system}:${database}`
   const existing = pools.get(key)
@@ -89,13 +90,29 @@ const runReport: RunReport = async (system, def, params, database) => {
   }
   const result = await request.execute(def.procedure)
   const rows = result.recordset ?? []
-  reportCache.set(cacheKey, { rows, expires: Date.now() + 30_000 })
+  reportCache.set(cacheKey, { rows, expires: Date.now() + cacheTtl })
   return rows
+}
+
+// Hangatkan pool tiap sistem saat boot — permintaan pertama tidak perlu
+// membayar handshake koneksi (init konektor + login). Kredensial hilang
+// atau DB mati tidak boleh menggagalkan boot; hanya tanda peringatan.
+const whitelist = loadWhitelist()
+for (const [system, def] of Object.entries(whitelist)) {
+  try {
+    getPool(system, def.database)
+      .then(() => console.log(`pool ${system} (${def.database}) ready`))
+      .catch((err: unknown) =>
+        console.warn(`pool ${system} belum siap: ${String(err)}`)
+      )
+  } catch (err) {
+    console.warn(`pool ${system} belum siap: ${String(err)}`)
+  }
 }
 
 const port = Number(process.env.PORT ?? 3001)
 createApp({
-  whitelist: loadWhitelist(),
+  whitelist,
   runReport,
   allowedOrigin: process.env.CORS_ORIGIN || undefined,
 }).listen(port, () => {
