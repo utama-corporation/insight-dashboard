@@ -4,7 +4,6 @@ import { fetchReport } from '@/lib/api'
 import {
   deltaPct,
   formatNumber,
-  latestTotal,
   periodBounds,
   sumBy,
   weightedPct,
@@ -14,7 +13,11 @@ import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { rendemenAnomalies } from './category-insights'
+import {
+  MUTASI_KEYS,
+  rendemenOver100,
+  stokAkhirTerakhir,
+} from './category-insights'
 import { labelPeriode } from './labels'
 import { MonthPicker } from './month-picker'
 
@@ -69,16 +72,29 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
 
   const outputCur = sumBy(produksiCur.data ?? [], 'Output')
   const outputPrev = sumBy(produksiPrev.data ?? [], 'Output')
-  const realisasiCur = weightedPct(produksiCur.data ?? [], 'Output', 'Target')
-  const realisasiPrev = weightedPct(produksiPrev.data ?? [], 'Output', 'Target')
+  // Realisasi hanya dari hari aktif (Output terisi) — target hari tanpa
+  // produksi tidak boleh mengencerkan persentase.
+  const realisasiCur = weightedPct(
+    (produksiCur.data ?? []).filter((r) => r.Output != null),
+    'Output',
+    'Target'
+  )
+  const realisasiPrev = weightedPct(
+    (produksiPrev.data ?? []).filter((r) => r.Output != null),
+    'Output',
+    'Target'
+  )
   const rendemenCurPct = weightedPct(rendemenCur.data ?? [], 'Output', 'Input')
   const rendemenPrevPct = weightedPct(
     rendemenPrev.data ?? [],
     'Output',
     'Input'
   )
-  const mutasiCurKg = latestTotal(mutasiCur.data ?? [], 'TotalAkhir')
-  const mutasiPrevKg = latestTotal(mutasiPrev.data ?? [], 'TotalAkhir')
+  const stokCur = stokAkhirTerakhir(mutasiCur.data ?? [], MUTASI_KEYS)
+  const stokPrev = stokAkhirTerakhir(mutasiPrev.data ?? [], MUTASI_KEYS)
+  const stokCurM3 = stokCur?.nonKg ?? 0
+  const stokPrevM3 = stokPrev?.nonKg ?? 0
+  const kbKg = stokCur?.kbKg ?? 0
 
   const loaded = semuaLaporan.every((laporan) => laporan.isSuccess)
   const failed = semuaLaporan.some((laporan) => laporan.isError)
@@ -87,9 +103,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const memuat = semuaLaporan.some((laporan) => laporan.isPlaceholderData)
 
   const deltaProduksi = loaded ? deltaPct(outputCur, outputPrev) : undefined
-  const anomalies = rendemenAnomalies(rendemenCur.data ?? [], 'GRP')
-  const anomalyRows = anomalies.reduce((total, a) => total + a.rows, 0)
-  const topAnomaly = anomalies[0]
+  const rendemenTinggi = rendemenOver100(rendemenCur.data ?? [], 'GRP')
   const labelBulan = labelPeriode(month)
   const labelBulanLalu = labelPeriode(prev.awal.slice(0, 7))
   let insight: string
@@ -132,15 +146,16 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           {insight}
         </p>
 
-        {loaded && !memuat && topAnomaly && (
+        {loaded && !memuat && rendemenTinggi.length > 0 && (
           <p
             className='mt-3 rounded-md border border-warning-border bg-warning-surface px-3 py-2 text-xs text-warning'
             data-testid='insight-anomali'
           >
-            Anomali data: {formatNumber(anomalyRows)} baris rendemen di atas
-            100% (tertinggi {formatNumber(topAnomaly.maxPct)}% —{' '}
-            {topAnomaly.name}
-            {topAnomaly.maxDate && `, ${topAnomaly.maxDate}`}).
+            Rendemen bulanan di atas 100% (output memakai buffer WIP):{' '}
+            {rendemenTinggi
+              .map((g) => `${g.name} (${formatNumber(g.pct)}%)`)
+              .join(', ')}
+            .
           </p>
         )}
 
@@ -157,7 +172,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             testId='kpi-total-produksi'
           />
           <Kpi
-            label='Realisasi vs Target'
+            label='Realisasi vs Target (hari aktif)'
             value={loaded ? formatNumber(realisasiCur) : '—'}
             suffix={loaded ? '%' : undefined}
             delta={loaded ? realisasiCur - realisasiPrev : undefined}
@@ -175,9 +190,10 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             testId='kpi-rendemen'
           />
           <Kpi
-            label='Mutasi Total (kg)'
-            value={loaded ? formatNumber(mutasiCurKg) : '—'}
-            delta={loaded ? deltaPct(mutasiCurKg, mutasiPrevKg) : undefined}
+            label='Stok Akhir (m³)'
+            value={loaded ? formatNumber(stokCurM3) : '—'}
+            delta={loaded ? deltaPct(stokCurM3, stokPrevM3) : undefined}
+            caption={`KB kg: ${formatNumber(kbKg)} · vs periode sebelumnya`}
             testId='kpi-mutasi'
           />
         </KpiStrip>

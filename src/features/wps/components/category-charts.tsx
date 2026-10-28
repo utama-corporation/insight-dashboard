@@ -190,7 +190,7 @@ export function MutationCategoryChart({
   return (
     <CategoryCard
       className={className}
-      title='Komposisi Mutasi per Kategori (kg)'
+      title='Komposisi Mutasi per Kategori (m³)'
       insight={
         largest
           ? `Komposisi terbesar: ${largest.name} (${formatNumber(largest.value)})`
@@ -198,7 +198,7 @@ export function MutationCategoryChart({
       }
       insightId='insight-mutasi'
       chartId='chart-mutasi-kategori'
-      keterangan='Semua batang abu-abu — chart ini murni peringkat komposisi stok akhir (kg) dan tidak menyorot satu kategori.'
+      keterangan='Semua batang abu-abu — chart ini murni peringkat komposisi stok akhir (m³) dan tidak menyorot satu kategori. KBKG (kayu bulat, satuannya kg) tidak dimasukkan.'
     >
       <BarChart
         data={data}

@@ -58,6 +58,15 @@ const produksiCur = [
     Output: 40,
     Rend: 40,
   },
+  // Hari non-aktif: target tercatat tapi output kosong — tidak boleh mengencerkan realisasi
+  {
+    Tanggal: '2026-10-04',
+    NamaMesin: 'A',
+    Target: 100,
+    Input: 0,
+    Output: null,
+    Rend: null,
+  },
 ]
 const produksiPrev = [
   {
@@ -70,10 +79,12 @@ const produksiPrev = [
   },
 ]
 const mutasiCur = [
-  { Tanggal: '2026-10-26', TotalAkhir: 120 },
-  { Tanggal: '2026-10-27', TotalAkhir: 90 },
+  { Tanggal: '2026-10-26', S4S: 120, KBKG: 0, TotalAkhir: 120 },
+  { Tanggal: '2026-10-27', S4S: 90, KBKG: 7000, TotalAkhir: 7090 },
 ]
-const mutasiPrev = [{ Tanggal: '2026-09-27', TotalAkhir: 100 }]
+const mutasiPrev = [
+  { Tanggal: '2026-09-27', S4S: 100, KBKG: 0, TotalAkhir: 100 },
+]
 const rendemenCur = [
   { Tanggal: '2026-10-27', Input: 100, Output: 60, GRP: 'S4S' },
 ]
@@ -126,7 +137,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
     await expect
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('100')
-    // Realisasi = 100/200 = 50%
+    // Realisasi = 100/200 = 50% (hanya hari aktif; hari tanpa output tidak dihitung)
     await expect
       .element(screen.getByTestId('kpi-realisasi'))
       .toHaveTextContent('50%')
@@ -134,10 +145,13 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
     await expect
       .element(screen.getByTestId('kpi-rendemen'))
       .toHaveTextContent('60%')
-    // Mutasi akhir = 90
+    // Mutasi akhir = 90 (KBKG 7.000 kg TIDAK ikut — satuan kg, bukan m³)
     await expect
       .element(screen.getByTestId('kpi-mutasi'))
       .toHaveTextContent('90')
+    await expect
+      .element(screen.getByTestId('kpi-mutasi'))
+      .not.toHaveTextContent('7.090')
     // Data wajar -> tidak ada banner anomali
     expect(document.querySelector('[data-testid="insight-anomali"]')).toBeNull()
   })
@@ -166,7 +180,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('—')
   })
 
-  it('menandai rendemen di atas 100% sebagai anomali data', async () => {
+  it('menandai rendemen bulanan di atas 100% (buffer WIP)', async () => {
     mockFetchReport.mockImplementation(async (_system, type, params) => {
       const isCur = params.tglAwal?.startsWith('2026-10')
       switch (type) {
@@ -186,10 +200,12 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
 
     await expect
       .element(screen.getByTestId('insight-anomali'))
-      .toHaveTextContent('1 baris rendemen di atas 100%')
+      .toHaveTextContent(
+        'Rendemen bulanan di atas 100% (output memakai buffer WIP)'
+      )
     await expect
       .element(screen.getByTestId('insight-anomali'))
-      .toHaveTextContent('3.300% — MOULDING, 2026-10-16')
+      .toHaveTextContent('MOULDING (3.300%)')
   })
 
   it('membandingkan dengan periode sebelumnya (Δ%)', async () => {

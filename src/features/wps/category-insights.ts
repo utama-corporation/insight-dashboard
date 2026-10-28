@@ -87,38 +87,27 @@ export function lowestRealisasi(
   return best
 }
 
-/** Baris rendemen tak masuk akal: Output > Input (>100%), dikelompokkan per nama. */
-interface RendemenAnomaly {
-  name: string
-  rows: number
-  maxPct: number
-  maxDate: string
-}
-
-export function rendemenAnomalies(
+/** GRP dengan rendemen bulanan di atas 100% (Σout ÷ Σin × 100).
+ *  Di laporan harian Output bisa > Input karena output memakai buffer WIP
+ *  hari sebelumnya — bukan error data. */
+export function rendemenOver100(
   rows: ReportRow[],
   groupKey: string
-): RendemenAnomaly[] {
-  const byName = new Map<string, RendemenAnomaly>()
+): { name: string; pct: number }[] {
+  const groups = new Map<string, ReportRow[]>()
   for (const row of rows) {
-    const input = num(row, 'Input')
-    const output = num(row, 'Output')
     const name = String(row[groupKey] ?? '')
-    if (input <= 0 || output <= input || !name) continue
-    const pct = (output / input) * 100
-    const date = String(row.Tanggal ?? '').slice(0, 10)
-    const found = byName.get(name)
-    if (!found) {
-      byName.set(name, { name, rows: 1, maxPct: pct, maxDate: date })
-    } else {
-      found.rows += 1
-      if (pct > found.maxPct) {
-        found.maxPct = pct
-        found.maxDate = date
-      }
-    }
+    if (!name) continue
+    groups.set(name, [...(groups.get(name) ?? []), row])
   }
-  return [...byName.values()].sort((a, b) => b.maxPct - a.maxPct)
+  const over: { name: string; pct: number }[] = []
+  for (const [name, groupRows] of groups) {
+    const input = groupRows.reduce((total, r) => total + num(r, 'Input'), 0)
+    const output = groupRows.reduce((total, r) => total + num(r, 'Output'), 0)
+    const pct = input > 0 ? (output / input) * 100 : 0
+    if (pct > 100) over.push({ name, pct: Math.round(pct) })
+  }
+  return over.sort((a, b) => b.pct - a.pct)
 }
 
 export const MUTASI_KEYS = [
@@ -143,4 +132,18 @@ export const MUTASI_LABELS: Record<string, string> = {
   FJ: 'Finger Joint',
   SAND: 'Sanding',
   CCAkhir: 'Cross Cut Akhir',
+}
+
+/** Stok akhir pada baris Tanggal terakhir. KBKG (kayu bulat, satuan kg)
+ *  dipisah — satuannya kg, kategori lainnya m³. */
+export function stokAkhirTerakhir(
+  rows: ReportRow[],
+  keys: readonly string[]
+): { nonKg: number; kbKg: number } | undefined {
+  const last = latestRow(rows)
+  if (!last) return undefined
+  return {
+    nonKg: keys.reduce((total, k) => total + num(last, k), 0),
+    kbKg: num(last, 'KBKG'),
+  }
 }

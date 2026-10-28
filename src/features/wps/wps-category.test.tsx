@@ -184,6 +184,10 @@ describe('WpsPage — Lapisan 2 per kategori', () => {
     await expect
       .element(screen.getByTestId('keterangan-chart-mutasi-kategori'))
       .toHaveTextContent('murni peringkat komposisi stok akhir')
+    // KBKG (kayu bulat kg) tidak ikut — satuannya kg, bukan m³
+    await expect
+      .element(screen.getByTestId('keterangan-chart-mutasi-kategori'))
+      .toHaveTextContent('KBKG')
     await expect
       .element(screen.getByTestId('keterangan-chart-rendemen-grp'))
       .toHaveTextContent('rendemen terendah')

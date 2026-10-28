@@ -1,35 +1,43 @@
 import { describe, expect, it } from 'vitest'
-import { rendemenAnomalies } from './category-insights'
+import {
+  MUTASI_KEYS,
+  rendemenOver100,
+  stokAkhirTerakhir,
+} from './category-insights'
 
-describe('rendemenAnomalies', () => {
-  it('mengelompokkan baris >100% dan mengambil puncaknya', () => {
+describe('rendemenOver100', () => {
+  it('menilai dari agregat per GRP, bukan per baris harian', () => {
     const rows = [
       { Tanggal: '2026-10-01', GRP: 'S4S', Input: 10, Output: 12 },
       { Tanggal: '2026-10-02', GRP: 'S4S', Input: 5, Output: 15 },
       { Tanggal: '2026-10-01', GRP: 'MOULDING', Input: 1, Output: 9 },
     ]
-    expect(rendemenAnomalies(rows, 'GRP')).toEqual([
-      { name: 'MOULDING', rows: 1, maxPct: 900, maxDate: '2026-10-01' },
-      { name: 'S4S', rows: 2, maxPct: 300, maxDate: '2026-10-02' },
+    // S4S: 27/15 = 180%; MOULDING: 9/1 = 900%
+    expect(rendemenOver100(rows, 'GRP')).toEqual([
+      { name: 'MOULDING', pct: 900 },
+      { name: 'S4S', pct: 180 },
     ])
   })
 
-  it('mengabaikan rendemen wajar, input nol, dan nama kosong', () => {
+  it('mengabaikan agregat wajar (≤100%), input nol, dan nama kosong', () => {
     const rows = [
       { Tanggal: '2026-10-01', GRP: 'S4S', Input: 10, Output: 10 },
-      { Tanggal: '2026-10-02', GRP: 'S4S', Input: 0, Output: 5 },
+      { Tanggal: '2026-10-02', GRP: 'S4S', Input: 0, Output: 0 },
       { Tanggal: '2026-10-03', GRP: '', Input: 1, Output: 5 },
     ]
-    expect(rendemenAnomalies(rows, 'GRP')).toEqual([])
+    expect(rendemenOver100(rows, 'GRP')).toEqual([])
   })
+})
 
-  it('mempertahankan puncak dan membiarkan tanggal kosong', () => {
+describe('stokAkhirTerakhir', () => {
+  it('memisah KBKG (kg) dari kategori m³ pada baris terakhir', () => {
     const rows = [
-      { GRP: 'S4S', Input: 10, Output: 12 },
-      { Tanggal: '2026-10-02', GRP: 'S4S', Input: 10, Output: 11 },
+      { Tanggal: '2026-10-26', S4S: 100, KBKG: 9000 },
+      { Tanggal: '2026-10-27', S4S: 90, KBKG: 7000 },
     ]
-    expect(rendemenAnomalies(rows, 'GRP')).toEqual([
-      { name: 'S4S', rows: 2, maxPct: 120, maxDate: '' },
-    ])
+    expect(stokAkhirTerakhir(rows, MUTASI_KEYS)).toEqual({
+      nonKg: 90,
+      kbKg: 7000,
+    })
   })
 })
