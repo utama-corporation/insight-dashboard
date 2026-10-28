@@ -89,7 +89,7 @@ const port = Number(process.env.PORT ?? 3001)
 createApp({
   whitelist: loadWhitelist(),
   runReport,
-  allowedOrigin: process.env.CORS_ORIGIN,
+  allowedOrigin: process.env.CORS_ORIGIN || undefined,
 }).listen(port, () => {
   console.log(`insight server listening on :${port}`)
 })

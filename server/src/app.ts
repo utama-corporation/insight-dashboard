@@ -74,14 +74,16 @@ export function createApp({
   allowedOrigin?: string
 }): Express {
   const app = express()
+  const allowed = allowedOrigin.replace(/\/+$/, '')
   app.use((req, res, next) => {
-    res.setHeader('Vary', 'Origin')
-    if (req.headers.origin === allowedOrigin) {
-      res.setHeader('Access-Control-Allow-Origin', allowedOrigin)
+    res.vary('Origin')
+    const originAllowed = req.headers.origin === allowed
+    if (originAllowed) {
+      res.setHeader('Access-Control-Allow-Origin', allowed)
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
       res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
     }
-    if (req.method === 'OPTIONS') {
+    if (req.method === 'OPTIONS' && originAllowed) {
       res.sendStatus(204)
       return
     }

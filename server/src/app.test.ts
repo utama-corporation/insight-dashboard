@@ -64,6 +64,17 @@ describe('CORS', () => {
     expect(res.status).toBe(204)
     expect(res.headers.get('access-control-allow-origin')).toBe(origin)
     expect(res.headers.get('access-control-allow-methods')).toContain('POST')
+    expect(res.headers.get('access-control-allow-headers')).toContain(
+      'Content-Type',
+    )
+    expect(res.headers.get('vary')).toContain('Origin')
+  })
+
+  it('tidak menelan OPTIONS tanpa Origin', async () => {
+    const res = await fetch(`${base}/api/wps/reports/produksi-semua-mesin`, {
+      method: 'OPTIONS',
+    })
+    expect(res.status).not.toBe(204)
   })
 
   it('mengirim header CORS pada request sebenarnya', async () => {
