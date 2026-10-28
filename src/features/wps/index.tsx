@@ -15,6 +15,7 @@ import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { rendemenAnomalies } from './category-insights'
+import { labelPeriode } from './labels'
 import { MonthPicker } from './month-picker'
 
 const ProductionMachineChart = lazy(() =>
@@ -89,13 +90,20 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const anomalies = rendemenAnomalies(rendemenCur.data ?? [], 'GRP')
   const anomalyRows = anomalies.reduce((total, a) => total + a.rows, 0)
   const topAnomaly = anomalies[0]
-  const insight = failed
-    ? 'Gagal memuat data. Periksa koneksi ke server.'
-    : memuat || deltaProduksi === undefined
-      ? 'Memuat data produksi…'
-      : deltaProduksi === 0
-        ? 'Produksi stabil dibanding periode sebelumnya.'
-        : `Produksi ${deltaProduksi > 0 ? 'naik' : 'turun'} ${Math.abs(deltaProduksi)}% dibanding periode sebelumnya.`
+  const labelBulan = labelPeriode(month)
+  const labelBulanLalu = labelPeriode(prev.awal.slice(0, 7))
+  let insight: string
+  if (failed) {
+    insight = 'Gagal memuat data. Periksa koneksi ke server.'
+  } else if (memuat || deltaProduksi === undefined) {
+    insight = 'Memuat data produksi…'
+  } else if (deltaProduksi === 0) {
+    insight = `Produksi ${labelBulan}: ${formatNumber(outputCur)} m³ — stabil dibanding ${labelBulanLalu} (${formatNumber(outputPrev)}).`
+  } else {
+    insight = `Produksi ${labelBulan}: ${formatNumber(outputCur)} m³ — ${
+      deltaProduksi > 0 ? 'naik' : 'turun'
+    } ${Math.abs(deltaProduksi)}% dibanding ${labelBulanLalu} (${formatNumber(outputPrev)}).`
+  }
 
   return (
     <>

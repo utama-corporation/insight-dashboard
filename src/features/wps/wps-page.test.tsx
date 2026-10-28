@@ -210,7 +210,9 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
 
     await expect
       .element(screen.getByTestId('insight-produksi'))
-      .toHaveTextContent('naik 100%')
+      .toHaveTextContent(
+        'Produksi Oktober 2026: 100 m³ — naik 100% dibanding September 2026 (50).'
+      )
   })
 
   it('hanya memanggil laporan sistem WPS', async () => {

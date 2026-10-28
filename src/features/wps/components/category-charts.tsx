@@ -17,6 +17,7 @@ import {
   MUTASI_LABELS,
   largestCategory,
   lowestRendemen,
+  lowestRealisasi,
   topMover,
 } from '../category-insights'
 
@@ -99,14 +100,22 @@ export function ProductionMachineChart({
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
   const mover = topMover(current, previous, 'NamaMesin')
+  const realisasi = lowestRealisasi(current, 'NamaMesin')
 
   return (
     <CategoryCard
       className={className}
       title='Total Produksi per Mesin (m³)'
       insight={
-        mover
-          ? `Perubahan terbesar: ${mover.name} (${mover.delta > 0 ? '+' : ''}${mover.delta}%)`
+        mover || realisasi
+          ? [
+              mover &&
+                `Perubahan terbesar: ${mover.name} (${mover.delta > 0 ? '+' : ''}${mover.delta}%)`,
+              realisasi &&
+                `Realisasi terendah: ${realisasi.name} (${realisasi.pct}%)`,
+            ]
+              .filter(Boolean)
+              .join('. ')
           : 'Belum ada data perbandingan.'
       }
       insightId='insight-mesin'

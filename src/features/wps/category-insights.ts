@@ -49,8 +49,7 @@ export function largestCategory(
   return best
 }
 
-/** GRP dengan rendemen tertimbang terendah. */
-export function lowestRendemen(
+/** GRP dengan rendemen tertimbang terendah. */ export function lowestRendemen(
   rows: ReportRow[],
   groupKey: string
 ): { name: string; pct: number } | undefined {
@@ -63,6 +62,25 @@ export function lowestRendemen(
   let best: { name: string; pct: number } | undefined
   for (const [name, groupRows] of groups) {
     const pct = weightedPct(groupRows, 'Output', 'Input')
+    if (!best || pct < best.pct) best = { name, pct }
+  }
+  return best
+}
+
+/** Mesin dengan realisasi terendah (Output ÷ Target, tertimbang per mesin). */
+export function lowestRealisasi(
+  rows: ReportRow[],
+  machineKey: string
+): { name: string; pct: number } | undefined {
+  const machines = new Map<string, ReportRow[]>()
+  for (const row of rows) {
+    const name = String(row[machineKey] ?? '')
+    if (!name) continue
+    machines.set(name, [...(machines.get(name) ?? []), row])
+  }
+  let best: { name: string; pct: number } | undefined
+  for (const [name, machineRows] of machines) {
+    const pct = weightedPct(machineRows, 'Output', 'Target')
     if (!best || pct < best.pct) best = { name, pct }
   }
   return best

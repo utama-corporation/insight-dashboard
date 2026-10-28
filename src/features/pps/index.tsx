@@ -119,13 +119,19 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   const last3 = avg(totalPerDay.slice(-3))
   const prev3 = avg(totalPerDay.slice(-6, -3))
   const deltaTren = last3 > 0 || prev3 > 0 ? deltaPct(last3, prev3) : 0
-  const insight = fullTrend.isError
-    ? 'Gagal memuat data. Periksa koneksi ke server.'
-    : fullTrend.isLoading
-      ? 'Memuat data produksi…'
-      : deltaTren === 0
-        ? 'Produksi plastik stabil dalam 7 hari terakhir.'
-        : `Produksi plastik ${deltaTren > 0 ? 'naik' : 'turun'} ${Math.abs(deltaTren)}% dalam 7 hari terakhir.`
+  const totalTujuhHari = totalPerDay.reduce((total, v) => total + v, 0)
+  let insight: string
+  if (fullTrend.isError) {
+    insight = 'Gagal memuat data. Periksa koneksi ke server.'
+  } else if (fullTrend.isLoading) {
+    insight = 'Memuat data produksi…'
+  } else if (deltaTren === 0) {
+    insight = `Produksi plastik 7 hari: ${formatNumber(totalTujuhHari)} kg — stabil vs 3 hari sebelumnya.`
+  } else {
+    insight = `Produksi plastik 7 hari: ${formatNumber(totalTujuhHari)} kg — ${
+      deltaTren > 0 ? 'naik' : 'turun'
+    } ${Math.abs(deltaTren)}% vs 3 hari sebelumnya.`
+  }
 
   return (
     <>

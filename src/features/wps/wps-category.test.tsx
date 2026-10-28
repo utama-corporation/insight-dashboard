@@ -137,6 +137,10 @@ describe('WpsPage — Lapisan 2 per kategori', () => {
     await expect
       .element(screen.getByTestId('insight-mesin'))
       .toHaveTextContent('Perubahan terbesar: MESIN B (+100%)')
+    // Realisasi vs target: A 60/100 = 60%, B 40/100 = 40% -> terendah B
+    await expect
+      .element(screen.getByTestId('insight-mesin'))
+      .toHaveTextContent('Realisasi terendah: MESIN B (40%)')
   })
 
   it('menampilkan chart tren produksi per mesin', async () => {

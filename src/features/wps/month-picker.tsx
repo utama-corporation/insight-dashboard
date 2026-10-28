@@ -7,26 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-
-const BULAN = [
-  'Januari',
-  'Februari',
-  'Maret',
-  'April',
-  'Mei',
-  'Juni',
-  'Juli',
-  'Agustus',
-  'September',
-  'Oktober',
-  'November',
-  'Desember',
-] as const
-
-function labelPeriode(value: string): string {
-  const [year, monthIdx] = value.split('-').map(Number) as [number, number]
-  return `${BULAN[monthIdx - 1]} ${year}`
-}
+import { BULAN, labelPeriode } from './labels'
 
 /**
  * Pemilih periode bulan: seluruh trigger membuka popover (bukan ikon kecil
