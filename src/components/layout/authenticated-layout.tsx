@@ -12,7 +12,8 @@ type AuthenticatedLayoutProps = {
 }
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
-  const defaultOpen = getCookie('sidebar_state') !== 'false'
+  // Rail ikon sebagai default; label hanya saat pengguna membukanya.
+  const defaultOpen = getCookie('sidebar_state') === 'true'
   return (
     <SearchProvider>
       <LayoutProvider>

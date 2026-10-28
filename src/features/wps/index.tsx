@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchReport } from '@/lib/api'
 import {
   deltaPct,
-  formatDelta,
   formatNumber,
   latestTotal,
   periodBounds,
@@ -11,13 +10,10 @@ import {
   weightedPct,
   type Period,
 } from '@/lib/report-metrics'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { rendemenAnomalies } from './category-insights'
 import {
@@ -25,8 +21,6 @@ import {
   ProductionMachineChart,
   RendemenGroupChart,
 } from './components/category-charts'
-
-const topNav = [{ title: 'WPS', href: '/wps', isActive: true }]
 
 function useReport(type: string, period: Period) {
   return useQuery({
@@ -37,53 +31,6 @@ function useReport(type: string, period: Period) {
         tglAkhir: period.akhir,
       }),
   })
-}
-
-function KpiCard({
-  label,
-  value,
-  suffix,
-  delta,
-  deltaUnit = 'percent',
-  testId,
-}: {
-  label: string
-  value: string
-  suffix?: string
-  delta: number | undefined
-  // 'percent' = Δ relatif; 'pp' = perbedaan poin persentase
-  deltaUnit?: 'percent' | 'pp'
-  testId: string
-}) {
-  const deltaText =
-    delta === undefined
-      ? undefined
-      : deltaUnit === 'pp'
-        ? `${delta > 0 ? '+' : ''}${delta} pp`
-        : formatDelta(delta)
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className='text-sm font-medium text-muted-foreground'>
-          {label}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className='text-2xl font-bold' data-testid={testId}>
-          {value}
-          {suffix}
-        </div>
-        {deltaText !== undefined && (
-          <p
-            className='text-xs text-muted-foreground'
-            data-testid={`delta-${testId.replace('kpi-', '')}`}
-          >
-            {deltaText} vs periode sebelumnya
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  )
 }
 
 export function WpsPage({ initialMonth }: { initialMonth?: string }) {
@@ -143,27 +90,31 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   return (
     <>
       <Header>
-        <TopNav links={topNav} className='me-auto' />
-        <Search />
         <ThemeSwitch />
-        <ProfileDropdown />
       </Header>
       <Main>
-        <div className='mb-4 flex flex-wrap items-center justify-between gap-2'>
-          <h1 className='text-2xl font-bold tracking-tight'>
-            Wood Processing System
-          </h1>
+        <div className='mb-6 flex flex-wrap items-end justify-between gap-3'>
+          <div>
+            <h1 className='text-2xl font-semibold tracking-tight'>
+              Wood Processing System
+            </h1>
+            <p className='mt-1 text-sm text-muted-foreground'>
+              Produksi, rendemen, dan mutasi bahan per bulan
+            </p>
+          </div>
           <Input
             type='month'
             value={month}
             onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className='w-44'
+            className='h-9 w-40'
             aria-label='Pilih periode'
           />
         </div>
 
         <p
-          className='mb-4 rounded-md border bg-muted/40 px-4 py-2 text-sm'
+          className={
+            failed ? 'text-base text-negative' : 'text-base text-foreground'
+          }
           data-testid='insight-produksi'
         >
           {insight}
@@ -171,7 +122,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
 
         {loaded && topAnomaly && (
           <p
-            className='mb-4 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200'
+            className='mt-3 rounded-md border border-warning-border bg-warning-surface px-3 py-2 text-xs text-warning'
             data-testid='insight-anomali'
           >
             Anomali data: {formatNumber(anomalyRows)} baris rendemen di atas
@@ -181,40 +132,44 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           </p>
         )}
 
-        <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
-          <KpiCard
+        <KpiStrip className='mt-5 sm:grid-cols-2 lg:grid-cols-4'>
+          <Kpi
             label='Total Produksi (m³)'
             value={loaded ? formatNumber(outputCur) : '—'}
             delta={deltaProduksi}
+            tone='change'
             testId='kpi-total-produksi'
           />
-          <KpiCard
+          <Kpi
             label='Realisasi vs Target'
             value={loaded ? formatNumber(realisasiCur) : '—'}
             suffix={loaded ? '%' : undefined}
             delta={loaded ? realisasiCur - realisasiPrev : undefined}
             deltaUnit='pp'
+            tone='change'
             testId='kpi-realisasi'
           />
-          <KpiCard
+          <Kpi
             label='Rendemen'
             value={loaded ? formatNumber(rendemenCurPct) : '—'}
             suffix={loaded ? '%' : undefined}
             delta={loaded ? rendemenCurPct - rendemenPrevPct : undefined}
             deltaUnit='pp'
+            tone='change'
             testId='kpi-rendemen'
           />
-          <KpiCard
+          <Kpi
             label='Mutasi Total (kg)'
             value={loaded ? formatNumber(mutasiCurKg) : '—'}
             delta={loaded ? deltaPct(mutasiCurKg, mutasiPrevKg) : undefined}
             testId='kpi-mutasi'
           />
-        </div>
+        </KpiStrip>
 
         {loaded && (
-          <div className='grid gap-4 lg:grid-cols-2'>
+          <div className='mt-4 grid gap-4 lg:grid-cols-2'>
             <ProductionMachineChart
+              className='lg:col-span-2'
               current={produksiCur.data ?? []}
               previous={produksiPrev.data ?? []}
             />

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
+  CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -15,16 +17,11 @@ import {
   periodBounds,
   type Period,
 } from '@/lib/report-metrics'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
-import { TopNav } from '@/components/layout/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
-
-const topNav = [{ title: 'PPS', href: '/pps', isActive: true }]
 
 const PROSES = [
   { proses: 'broker', label: 'Broker' },
@@ -36,6 +33,20 @@ const PROSES = [
 
 type Proses = (typeof PROSES)[number]['proses']
 
+const tick = { fontSize: 12, fill: 'var(--muted-foreground)' }
+const tooltip = {
+  contentStyle: {
+    borderRadius: 6,
+    border: '1px solid var(--border)',
+    background: 'var(--popover)',
+    color: 'var(--popover-foreground)',
+    fontSize: 12,
+    padding: '6px 8px',
+  },
+  labelStyle: { color: 'var(--muted-foreground)' },
+  itemStyle: { color: 'var(--foreground)' },
+}
+
 /** Tanggal `i` hari sebelum akhir periode (inklusif akhir). */
 function dayBefore(period: Period, i: number): string {
   const date = new Date(`${period.akhir}T00:00:00Z`)
@@ -43,7 +54,10 @@ function dayBefore(period: Period, i: number): string {
   return date.toISOString().slice(0, 10)
 }
 
-type TrendRow = { tanggal: string } & Record<Proses, number>
+/** dd/MM — urutan hari tetap terbaca tanpa bergantung pada locale. */
+const dayLabel = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
+
+type TrendRow = { tanggal: string; label: string } & Record<Proses, number>
 
 export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   const [month, setMonth] = useState(
@@ -72,6 +86,7 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
       return trendDays.map((tanggal) => {
         const day: TrendRow = {
           tanggal,
+          label: dayLabel(tanggal),
           broker: 0,
           crusher: 0,
           gilingan: 0,
@@ -91,11 +106,11 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   // shortcut: 1 call per proses per hari (35 call/paket 7 hari), belum ada
   // SP periode teragregasi — ganti saat whitelist SP periode tervalidasi (#9)
   const chartData = trend.data ?? []
-  const lastNonZero = (proses: Proses) => {
-    const last =
-      [...chartData].reverse().find((d) => Number(d[proses]) > 0) ??
-      chartData[chartData.length - 1]
-    return last ? Number(last[proses]) || 0 : 0
+  const lastPoint = (proses: Proses) => {
+    const row = [...chartData].reverse().find((d) => Number(d[proses]) > 0)
+    return row
+      ? { value: Number(row[proses]), date: dayLabel(row.tanggal) }
+      : undefined
   }
 
   // Insight rule-based dari data tren yang sudah ada: rata-rata 3 hari
@@ -110,87 +125,125 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
   const last3 = avg(totalPerDay.slice(-3))
   const prev3 = avg(totalPerDay.slice(-6, -3))
   const deltaTren = last3 > 0 || prev3 > 0 ? deltaPct(last3, prev3) : 0
-  const insight = trend.isLoading
-    ? 'Memuat data produksi…'
-    : deltaTren === 0
-      ? 'Produksi plastik stabil dalam 7 hari terakhir.'
-      : `Produksi plastik ${deltaTren > 0 ? 'naik' : 'turun'} ${Math.abs(deltaTren)}% dalam 7 hari terakhir.`
+  const insight = trend.isError
+    ? 'Gagal memuat data. Periksa koneksi ke server.'
+    : trend.isLoading
+      ? 'Memuat data produksi…'
+      : deltaTren === 0
+        ? 'Produksi plastik stabil dalam 7 hari terakhir.'
+        : `Produksi plastik ${deltaTren > 0 ? 'naik' : 'turun'} ${Math.abs(deltaTren)}% dalam 7 hari terakhir.`
 
   return (
     <>
       <Header>
-        <TopNav links={topNav} className='me-auto' />
-        <Search />
         <ThemeSwitch />
-        <ProfileDropdown />
       </Header>
       <Main>
-        <div className='mb-4 flex flex-wrap items-center justify-between gap-2'>
-          <h1 className='text-2xl font-bold tracking-tight'>
-            Plastic Production System
-          </h1>
+        <div className='mb-6 flex flex-wrap items-end justify-between gap-3'>
+          <div>
+            <h1 className='text-2xl font-semibold tracking-tight'>
+              Plastic Production System
+            </h1>
+            <p className='mt-1 text-sm text-muted-foreground'>
+              Output per proses, 7 hari terakhir
+            </p>
+          </div>
           <Input
             type='month'
             value={month}
             onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className='w-44'
+            className='h-9 w-40'
             aria-label='Pilih periode'
           />
         </div>
 
         <p
-          className='mb-4 rounded-md border bg-muted/40 px-4 py-2 text-sm'
+          className={
+            trend.isError
+              ? 'text-base text-negative'
+              : 'text-base text-foreground'
+          }
           data-testid='insight-produksi'
         >
           {insight}
         </p>
 
-        <div className='mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5'>
-          {PROSES.map(({ proses, label }) => (
-            <Card key={proses}>
-              <CardHeader>
-                <CardTitle className='text-sm font-medium text-muted-foreground'>
-                  {label} (kg)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div
-                  className='text-2xl font-bold'
-                  data-testid={`kpi-proses-${proses}`}
-                >
-                  {trend.isSuccess ? formatNumber(lastNonZero(proses)) : '—'}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <KpiStrip className='mt-5 sm:grid-cols-2 lg:grid-cols-5 [&>*:last-child]:col-span-2 lg:[&>*:last-child]:col-span-1'>
+          {PROSES.map(({ proses, label }) => {
+            const point = lastPoint(proses)
+            return (
+              <Kpi
+                key={proses}
+                label={`${label} (kg)`}
+                value={trend.isSuccess ? formatNumber(point?.value ?? 0) : '—'}
+                caption={point ? `per ${point.date}` : '7 hari terakhir'}
+                testId={`kpi-proses-${proses}`}
+              />
+            )
+          })}
+        </KpiStrip>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Tren Produksi Harian per Proses (7 hari, kg)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div data-testid='tren-produksi-pps' className='h-72'>
-              <ResponsiveContainer width='100%' height='100%'>
-                <LineChart data={chartData}>
-                  <XAxis dataKey='tanggal' />
-                  <YAxis />
-                  <Tooltip />
-                  {PROSES.map(({ proses, label }, i) => (
-                    <Line
-                      key={proses}
-                      type='monotone'
-                      dataKey={proses}
-                      name={label}
-                      stroke={`hsl(${i * 60} 70% 45%)`}
-                      dot={false}
-                    />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <div className='mt-4 rounded-lg border bg-card p-5'>
+          <div className='mb-2 flex flex-wrap items-baseline justify-between gap-2'>
+            <h2 className='text-sm font-medium'>
+              Tren Produksi Harian per Proses (kg)
+            </h2>
+            <p className='text-xs text-muted-foreground'>7 hari, kg</p>
+          </div>
+          <div data-testid='tren-produksi-pps' className='h-80 w-full'>
+            <ResponsiveContainer width='100%' height='100%'>
+              <LineChart
+                data={chartData}
+                margin={{ top: 8, right: 8, bottom: 0, left: 0 }}
+              >
+                <CartesianGrid vertical={false} stroke='var(--border)' />
+                <XAxis
+                  dataKey='label'
+                  axisLine={false}
+                  tickLine={false}
+                  tick={tick}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={tick}
+                  width={52}
+                />
+                <Tooltip
+                  {...tooltip}
+                  formatter={(value, name) => [
+                    `${formatNumber(Number(value))} kg`,
+                    name,
+                  ]}
+                />
+                <Legend
+                  verticalAlign='top'
+                  align='left'
+                  iconType='circle'
+                  iconSize={6}
+                  wrapperStyle={{ fontSize: 12, paddingBottom: 12 }}
+                  formatter={(value) => (
+                    <span style={{ color: 'var(--muted-foreground)' }}>
+                      {value}
+                    </span>
+                  )}
+                />
+                {PROSES.map(({ proses, label }, i) => (
+                  <Line
+                    key={proses}
+                    type='linear'
+                    dataKey={proses}
+                    name={label}
+                    stroke={`var(--chart-${i + 1})`}
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{ r: 3 }}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </Main>
     </>
   )
