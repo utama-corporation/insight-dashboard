@@ -13,24 +13,26 @@ export function GeneralError({
   const navigate = useNavigate()
   const { history } = useRouter()
   return (
-    <div className={cn('h-svh w-full', className)}>
-      <div className='m-auto flex h-full w-full flex-col items-center justify-center gap-2'>
-        {!minimal && (
-          <h1 className='text-[7rem] leading-tight font-bold'>500</h1>
-        )}
-        <span className='font-medium'>Oops! Something went wrong {`:')`}</span>
-        <p className='text-center text-muted-foreground'>
-          We apologize for the inconvenience. <br /> Please try again later.
-        </p>
-        {!minimal && (
-          <div className='mt-6 flex gap-4'>
-            <Button variant='outline' onClick={() => history.go(-1)}>
-              Go Back
-            </Button>
-            <Button onClick={() => navigate({ to: '/' })}>Back to Home</Button>
-          </div>
-        )}
-      </div>
+    <div
+      className={cn(
+        'flex min-h-[60vh] flex-col items-center justify-center gap-2 px-4 text-center',
+        className
+      )}
+    >
+      <h1 className='text-2xl font-semibold tracking-tight'>
+        Terjadi kesalahan
+      </h1>
+      <p className='text-sm text-muted-foreground'>
+        Kami mohon maaf atas ketidaknyamanan ini. Coba lagi nanti.
+      </p>
+      {!minimal && (
+        <div className='mt-4 flex gap-2'>
+          <Button variant='outline' onClick={() => history.go(-1)}>
+            Kembali
+          </Button>
+          <Button onClick={() => navigate({ to: '/' })}>Ke WPS</Button>
+        </div>
+      )}
     </div>
   )
 }

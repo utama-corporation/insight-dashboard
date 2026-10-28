@@ -4,7 +4,6 @@ import { render } from 'vitest-browser-react'
 import { fetchReport } from '@/lib/api'
 import { DirectionProvider } from '@/context/direction-provider'
 import { LayoutProvider } from '@/context/layout-provider'
-import { SearchProvider } from '@/context/search-provider'
 import { ThemeProvider } from '@/context/theme-provider'
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { WpsPage } from './index'
@@ -87,13 +86,11 @@ async function renderPage() {
     <QueryClientProvider client={queryClient}>
       <DirectionProvider>
         <ThemeProvider>
-          <SearchProvider>
-            <LayoutProvider>
-              <SidebarProvider>
-                <WpsPage initialMonth='2026-10' />
-              </SidebarProvider>
-            </LayoutProvider>
-          </SearchProvider>
+          <LayoutProvider>
+            <SidebarProvider>
+              <WpsPage initialMonth='2026-10' />
+            </SidebarProvider>
+          </LayoutProvider>
         </ThemeProvider>
       </DirectionProvider>
     </QueryClientProvider>
