@@ -67,11 +67,26 @@ function validateParams(
 export function createApp({
   whitelist,
   runReport,
+  allowedOrigin = 'http://localhost:5173',
 }: {
   whitelist: Whitelist
   runReport: RunReport
+  allowedOrigin?: string
 }): Express {
   const app = express()
+  app.use((req, res, next) => {
+    res.setHeader('Vary', 'Origin')
+    if (req.headers.origin === allowedOrigin) {
+      res.setHeader('Access-Control-Allow-Origin', allowedOrigin)
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    }
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(204)
+      return
+    }
+    next()
+  })
   app.use(express.json())
   app.get('/health', (_req: Request, res: Response) => {
     res.json({ ok: true })

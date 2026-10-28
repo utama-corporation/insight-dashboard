@@ -49,6 +49,47 @@ const post = (path: string, body: unknown) =>
     body: JSON.stringify(body),
   })
 
+describe('CORS', () => {
+  const origin = 'http://localhost:5173'
+
+  it('menjawab preflight dari origin yang diizinkan', async () => {
+    const res = await fetch(`${base}/api/wps/reports/produksi-semua-mesin`, {
+      method: 'OPTIONS',
+      headers: {
+        Origin: origin,
+        'Access-Control-Request-Method': 'POST',
+        'Access-Control-Request-Headers': 'content-type',
+      },
+    })
+    expect(res.status).toBe(204)
+    expect(res.headers.get('access-control-allow-origin')).toBe(origin)
+    expect(res.headers.get('access-control-allow-methods')).toContain('POST')
+  })
+
+  it('mengirim header CORS pada request sebenarnya', async () => {
+    const res = await fetch(`${base}/api/wps/reports/produksi-semua-mesin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: origin },
+      body: JSON.stringify({
+        params: { tglAwal: '2026-10-01', tglAkhir: '2026-10-27' },
+      }),
+    })
+    expect(res.status).toBe(200)
+    expect(res.headers.get('access-control-allow-origin')).toBe(origin)
+  })
+
+  it('tidak mengizinkan origin lain', async () => {
+    const res = await fetch(`${base}/api/wps/reports/produksi-semua-mesin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: 'http://evil.test' },
+      body: JSON.stringify({
+        params: { tglAwal: '2026-10-01', tglAkhir: '2026-10-27' },
+      }),
+    })
+    expect(res.headers.get('access-control-allow-origin')).toBeNull()
+  })
+})
+
 describe('POST /api/:system/reports/:type', () => {
   it('menolak sistem yang tidak ada di whitelist', async () => {
     const res = await post('/api/unknown/reports/produksi-semua-mesin', {})

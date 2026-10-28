@@ -86,6 +86,10 @@ const runReport: RunReport = async (system, def, params, database) => {
 }
 
 const port = Number(process.env.PORT ?? 3001)
-createApp({ whitelist: loadWhitelist(), runReport }).listen(port, () => {
+createApp({
+  whitelist: loadWhitelist(),
+  runReport,
+  allowedOrigin: process.env.CORS_ORIGIN,
+}).listen(port, () => {
   console.log(`insight server listening on :${port}`)
 })

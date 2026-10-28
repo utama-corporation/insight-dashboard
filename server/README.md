@@ -11,7 +11,7 @@ pnpm --filter server dev      # mode pengembangan (watch)
 pnpm --filter server start    # build lalu jalankan sekali
 ```
 
-Server berjalan di `http://localhost:3001`. Health check: `GET /health`.
+Server berjalan di `http://localhost:3001`. Health check: `GET /health`. Origin klien yang diizinkan default `http://localhost:5173`, ubah lewat `CORS_ORIGIN`.
 
 Contoh request:
 
