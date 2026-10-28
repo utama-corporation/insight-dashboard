@@ -57,7 +57,8 @@ export function MonthPicker({
       <PopoverTrigger asChild>
         <Button
           variant='outline'
-          aria-label='Pilih periode'
+          // Label-in-Name (WCAG 2.5.3): nama aksesibel memuat teks yang terlihat.
+          aria-label={`Pilih periode: ${labelPeriode(value)}`}
           className={cn('justify-between gap-2 font-normal', className)}
         >
           {labelPeriode(value)}

@@ -232,7 +232,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('100')
 
-    const picker = screen.getByLabelText('Pilih periode')
+    const picker = screen.getByRole('button', { name: /Pilih periode/ })
     await picker.click()
     await screen.getByRole('button', { name: 'September' }).click()
 
@@ -272,7 +272,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('100')
 
-    const picker = screen.getByLabelText('Pilih periode')
+    const picker = screen.getByRole('button', { name: /Pilih periode/ })
     await picker.click()
     await screen.getByRole('button', { name: 'November' }).click()
 
