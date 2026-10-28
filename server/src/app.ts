@@ -73,6 +73,8 @@ function validateParams(
         missing.push(p.name)
       }
     } else if (p.type === 'int') {
+      // Kosong = tidak dikirim — SP memakai nilai default (mis. UsingMode).
+      if (value === undefined || value === '') continue
       const n = typeof value === 'number' ? value : Number(value)
       if (!Number.isFinite(n)) missing.push(p.name)
     } else {
@@ -86,6 +88,7 @@ function validateParams(
   const params: Record<string, string> = {}
   for (const p of def.params) {
     const v = provided[p.name]
+    if (v === undefined || v === '') continue
     params[p.name] = p.type === 'int' ? String(Number(v)) : (v as string)
   }
   return { ok: true, params }
@@ -147,7 +150,9 @@ export function createApp({
   app.get('/api/:system/catalog', (req, res) => {
     const { system } = req.params
     const catalog = catalogData?.systems?.[system]
-    if (!catalog) return res.status(404).json({ error: 'CATALOG_NOT_FOUND' })
+    if (!catalog || !catalog.groups?.length) {
+      return res.status(404).json({ error: 'CATALOG_NOT_FOUND' })
+    }
     // ringkas: buang detail internal (kolom/contoh) dari payload.
     const groups = catalog.groups.map((g) => ({
       grup: g.grup,

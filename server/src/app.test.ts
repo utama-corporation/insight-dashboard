@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import type { AddressInfo } from 'node:net'
 import type { Server } from 'node:http'
-import { createApp, type RunReport, type Whitelist } from './app.js'
+import { createApp, type CatalogData, type RunReport, type Whitelist } from './app.js'
 
 const whitelist: Whitelist = {
   wps: {
@@ -156,5 +156,139 @@ describe('POST /api/:system/reports/:type', () => {
         params: { tglAwal: '2026-10-01', tglAkhir: '2026-10-27' },
       },
     ])
+  })
+})
+
+describe('Params int & string + param opsional', () => {
+  const wl: Whitelist = {
+    pps: {
+      database: 'PPS',
+      reports: [
+        {
+          type: 'laporan-int',
+          procedure: 'SP_Int',
+          params: [
+            { name: 'tahun', type: 'int' },
+            { name: 'bulan', type: 'int' },
+          ],
+        },
+        {
+          type: 'laporan-string',
+          procedure: 'SP_Str',
+          params: [{ name: 'noProduksi', type: 'string' }],
+        },
+        {
+          type: 'laporan-opsional',
+          procedure: 'SP_Opsi',
+          params: [
+            { name: 'tglAwal', type: 'date' },
+            { name: 'tglAkhir', type: 'date' },
+            { name: 'UsingMode', type: 'int' },
+          ],
+        },
+      ],
+    },
+  }
+
+  let server: Server
+  let base2: string
+  beforeAll(async () => {
+    const app = createApp({ whitelist: wl, runReport })
+    server = app.listen(0)
+    base2 = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+  })
+  afterAll(() => server.close())
+  const post2 = (path: string, body: unknown) =>
+    fetch(`${base2}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+  it('menerima int valid dan menolak yang bukan angka', async () => {
+    const ok = await post2('/api/pps/reports/laporan-int', {
+      params: { tahun: '2026', bulan: 10 },
+    })
+    expect(ok.status).toBe(200)
+    expect(calls.at(-1)?.params).toEqual({ tahun: '2026', bulan: '10' })
+
+    const bad = await post2('/api/pps/reports/laporan-int', {
+      params: { tahun: 'abc', bulan: 10 },
+    })
+    expect(bad.status).toBe(400)
+  })
+
+  it('menerima string dan menolak kosong', async () => {
+    const ok = await post2('/api/pps/reports/laporan-string', {
+      params: { noProduksi: 'X.001536' },
+    })
+    expect(ok.status).toBe(200)
+
+    const bad = await post2('/api/pps/reports/laporan-string', {
+      params: { noProduksi: '   ' },
+    })
+    expect(bad.status).toBe(400)
+  })
+
+  it('param berisi string kosong dianggap tidak dikirim (opsional)', async () => {
+    const res = await post2('/api/pps/reports/laporan-opsional', {
+      params: { tglAwal: '2026-10-01', tglAkhir: '2026-10-28', UsingMode: '' },
+    })
+    expect(res.status).toBe(200)
+    expect(calls.at(-1)?.params).toEqual({
+      tglAwal: '2026-10-01',
+      tglAkhir: '2026-10-28',
+    })
+  })
+})
+
+describe('Endpoint katalog', () => {
+  const catalog: CatalogData = {
+    systems: {
+      wps: {
+        groups: [
+          {
+            grup: 'Management',
+            items: [
+              {
+                type: 'dashboard-bj',
+                judul: 'Dashboard Barang Jadi',
+                procedure: 'SPWps_LapDashboardBJ',
+                shape: 'period',
+                params: [{ name: 'TglAwal', type: 'date' }],
+                kolom: ['DATE', 'Output'],
+                contohBaris: 30,
+              },
+            ],
+          },
+        ],
+      },
+      pps: { groups: [] },
+    },
+  }
+
+  let server: Server
+  let base3: string
+  beforeAll(async () => {
+    const app = createApp({ whitelist, runReport, catalogData: catalog })
+    server = app.listen(0)
+    base3 = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+  })
+  afterAll(() => server.close())
+
+  it('mengirim metadata grup tanpa detail internal', async () => {
+    const res = await fetch(`${base3}/api/wps/catalog`)
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.system).toBe('wps')
+    expect(body.groups[0].grup).toBe('Management')
+    expect(body.groups[0].items[0]).not.toHaveProperty('kolom')
+    expect(body.groups[0].items[0]).not.toHaveProperty('contohBaris')
+    expect(body.groups[0].items[0].procedure).toBe('SPWps_LapDashboardBJ')
+  })
+
+  it('menolak sistem tanpa katalog', async () => {
+    const res = await fetch(`${base3}/api/pps/catalog`)
+    expect(res.status).toBe(404)
   })
 })

@@ -46,9 +46,9 @@ function deteksiKolom(rows: ReportRow[]) {
   if (rows.length === 0)
     return { tanggal: undefined, dimensi: undefined, ukur: [] as string[] }
   const cols = Object.keys(rows[0])
-  const tanggal = cols.find((c) => /tanggal|tgl|perTgl/i.test(c))
+  const tanggal = cols.find((c) => /^(tanggal|tgl|pertgl|date)/i.test(c))
   const ukur = cols.filter(
-    (c) => c !== tanggal && isNumeric(rows, c) && !/(^id$|id$|^no)/i.test(c)
+    (c) => c !== tanggal && isNumeric(rows, c) && !/(^id|id$|^no)/i.test(c)
   )
   const dimensi = cols.find((c) => c !== tanggal && !ukur.includes(c))
   return { tanggal, dimensi, ukur: ukur.slice(0, 3) }
@@ -126,7 +126,8 @@ export function ReportView({
   const insight = useMemo(() => {
     if (laporan.isError)
       return 'Gagal memuat. Laporan ini menunggu grant EXECUTE atau SP tidak tersedia.'
-    if (laporan.isLoading || rows.length === 0) return 'Memuat data…'
+    if (laporan.isLoading || rows.length === 0)
+      return bisaAuto ? 'Memuat data…' : 'Isi parameter lalu klik Jalankan.'
     const bagian: string[] = []
     if (ukur.length > 0) {
       const cur = sumOf(rows, ukur[0])

@@ -35,7 +35,16 @@ export function LaporanPage({
             tersedia sebagai PDF di layanan dokumentasi.
           </p>
         )}
-        {item && <ReportView system={system} item={item} />}
+        {item && item.catatan && (
+          <p className='text-sm text-muted-foreground'>
+            {item.judul} dijalankan sebagai gabungan beberapa SP ({item.catatan}
+            ) — tersedia sebagai PDF di layanan dokumentasi, bukan tampilan
+            visual.
+          </p>
+        )}
+        {item && !item.catatan && (
+          <ReportView key={item.type} system={system} item={item} />
+        )}
       </Main>
     </>
   )

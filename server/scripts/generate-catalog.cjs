@@ -76,6 +76,15 @@ for (const f of fs.readdirSync(DIR).filter((x) => x.endsWith('.html')).sort()) {
       shape: shapeOf[slug].shape,
       params: params.length ? params.map((n) => ({ name: n, type: inferType(n) })) : shapeOf[slug].params,
     }
+    // Normalisasi dua param tanggal: nama field lowercase konsisten dengan
+    // reports.yaml; ejaan asli SP tetap lewat mapping `sp`.
+    item.params = item.params.map((p) => {
+      if (/^@?tglawal$/i.test(p.name))
+        return { name: 'tglAwal', type: 'date', ...(p.name !== 'tglAwal' ? { sp: p.name } : {}) }
+      if (/^@?tglakhir$/i.test(p.name))
+        return { name: 'tglAkhir', type: 'date', ...(p.name !== 'tglAkhir' ? { sp: p.name } : {}) }
+      return p
+    })
     if (sps.length > 1) item.catatan = `multi-SP (${sps.length})`
     const info = item.procedure ? spInfo[item.procedure] || null : null
     if (info) {
