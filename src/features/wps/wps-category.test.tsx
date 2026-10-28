@@ -170,4 +170,18 @@ describe('WpsPage — Lapisan 2 per kategori', () => {
       .element(screen.getByTestId('insight-rendemen'))
       .toHaveTextContent('Rendemen terendah: MLD (30%)')
   })
+
+  it('menjelaskan makna warna di bawah ketiga chart', async () => {
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('keterangan-chart-produksi-mesin'))
+      .toHaveTextContent('perubahan % terbesar vs bulan lalu')
+    await expect
+      .element(screen.getByTestId('keterangan-chart-mutasi-kategori'))
+      .toHaveTextContent('murni peringkat komposisi stok akhir')
+    await expect
+      .element(screen.getByTestId('keterangan-chart-rendemen-grp'))
+      .toHaveTextContent('rendemen terendah')
+  })
 })

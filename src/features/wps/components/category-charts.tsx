@@ -40,6 +40,7 @@ function CategoryCard({
   insight,
   insightId,
   chartId,
+  keterangan,
   className,
   children,
 }: {
@@ -47,6 +48,7 @@ function CategoryCard({
   insight: string
   insightId: string
   chartId: string
+  keterangan?: string
   className?: string
   children: React.ReactNode
 }) {
@@ -64,6 +66,14 @@ function CategoryCard({
             {children}
           </ResponsiveContainer>
         </div>
+        {keterangan && (
+          <p
+            className='mt-2 text-xs text-muted-foreground'
+            data-testid={`keterangan-${chartId}`}
+          >
+            {keterangan}
+          </p>
+        )}
       </CardContent>
     </Card>
   )
@@ -101,6 +111,7 @@ export function ProductionMachineChart({
       }
       insightId='insight-mesin'
       chartId='chart-produksi-mesin'
+      keterangan='Biru = mesin dengan perubahan % terbesar vs bulan lalu (naik maupun turun); abu-abu = mesin lainnya. Panjang batang = total output bulan ini.'
     >
       <BarChart
         data={data}
@@ -178,6 +189,7 @@ export function MutationCategoryChart({
       }
       insightId='insight-mutasi'
       chartId='chart-mutasi-kategori'
+      keterangan='Semua batang abu-abu — chart ini murni peringkat komposisi stok akhir (kg) dan tidak menyorot satu kategori.'
     >
       <BarChart
         data={data}
@@ -238,6 +250,7 @@ export function RendemenGroupChart({
       }
       insightId='insight-rendemen'
       chartId='chart-rendemen-grp'
+      keterangan='Biru = grup proses dengan rendemen terendah (fokus perhatian); abu-abu = lainnya. Rendemen = Output ÷ Input × 100 tertimbang per grup.'
     >
       <BarChart data={data} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
         <CartesianGrid vertical={false} stroke='var(--border)' />
