@@ -69,7 +69,7 @@ export function lowestRendemen(
 }
 
 /** Baris rendemen tak masuk akal: Output > Input (>100%), dikelompokkan per nama. */
-export interface RendemenAnomaly {
+interface RendemenAnomaly {
   name: string
   rows: number
   maxPct: number
