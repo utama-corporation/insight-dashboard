@@ -4,18 +4,22 @@ import { fetchReport } from '@/lib/api'
 import {
   deltaPct,
   formatNumber,
-  latestTotal,
   periodBounds,
   sumBy,
   weightedPct,
   type Period,
 } from '@/lib/report-metrics'
-import { Input } from '@/components/ui/input'
 import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
-import { rendemenAnomalies } from './category-insights'
+import {
+  MUTASI_KEYS,
+  rendemenOver100,
+  stokAkhirTerakhir,
+} from './category-insights'
+import { labelPeriode } from './labels'
+import { MonthPicker } from './month-picker'
 
 const ProductionMachineChart = lazy(() =>
   import('./components/category-charts').then((m) => ({
@@ -57,47 +61,63 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const mutasiPrev = useReport('rekap-mutasi', prev)
   const rendemenCur = useReport('rendemen-semua-proses', cur)
   const rendemenPrev = useReport('rendemen-semua-proses', prev)
-
-  const outputCur = sumBy(produksiCur.data ?? [], 'Output')
-  const outputPrev = sumBy(produksiPrev.data ?? [], 'Output')
-  const realisasiCur = weightedPct(produksiCur.data ?? [], 'Output', 'Target')
-  const realisasiPrev = weightedPct(produksiPrev.data ?? [], 'Output', 'Target')
-  const rendemenCurPct = weightedPct(rendemenCur.data ?? [], 'Output', 'Input')
-  const rendemenPrevPct = weightedPct(
-    rendemenPrev.data ?? [],
-    'Output',
-    'Input'
-  )
-  const mutasiCurKg = latestTotal(mutasiCur.data ?? [], 'TotalAkhir')
-  const mutasiPrevKg = latestTotal(mutasiPrev.data ?? [], 'TotalAkhir')
-
-  const loaded =
-    produksiCur.isSuccess &&
-    produksiPrev.isSuccess &&
-    mutasiCur.isSuccess &&
-    mutasiPrev.isSuccess &&
-    rendemenCur.isSuccess &&
-    rendemenPrev.isSuccess
-  const failed = [
+  const semuaLaporan = [
     produksiCur,
     produksiPrev,
     mutasiCur,
     mutasiPrev,
     rendemenCur,
     rendemenPrev,
-  ].some((query) => query.isError)
+  ]
+
+  const outputCur = sumBy(produksiCur.data ?? [], 'Output')
+  const outputPrev = sumBy(produksiPrev.data ?? [], 'Output')
+  // Realisasi hanya dari hari aktif (Output terisi) — target hari tanpa
+  // produksi tidak boleh mengencerkan persentase.
+  const realisasiCur = weightedPct(
+    (produksiCur.data ?? []).filter((r) => r.Output != null),
+    'Output',
+    'Target'
+  )
+  const realisasiPrev = weightedPct(
+    (produksiPrev.data ?? []).filter((r) => r.Output != null),
+    'Output',
+    'Target'
+  )
+  const rendemenCurPct = weightedPct(rendemenCur.data ?? [], 'Output', 'Input')
+  const rendemenPrevPct = weightedPct(
+    rendemenPrev.data ?? [],
+    'Output',
+    'Input'
+  )
+  const stokCur = stokAkhirTerakhir(mutasiCur.data ?? [], MUTASI_KEYS)
+  const stokPrev = stokAkhirTerakhir(mutasiPrev.data ?? [], MUTASI_KEYS)
+  const stokCurM3 = stokCur?.nonKg ?? 0
+  const stokPrevM3 = stokPrev?.nonKg ?? 0
+  const kbKg = stokCur?.kbKg ?? 0
+
+  const loaded = semuaLaporan.every((laporan) => laporan.isSuccess)
+  const failed = semuaLaporan.some((laporan) => laporan.isError)
+  // keepPreviousData melaporkan status success + data periode LAMA selama
+  // periode baru dimuat — tampilkan sebagai "memuat", bukan data terpilih.
+  const memuat = semuaLaporan.some((laporan) => laporan.isPlaceholderData)
 
   const deltaProduksi = loaded ? deltaPct(outputCur, outputPrev) : undefined
-  const anomalies = rendemenAnomalies(rendemenCur.data ?? [], 'GRP')
-  const anomalyRows = anomalies.reduce((total, a) => total + a.rows, 0)
-  const topAnomaly = anomalies[0]
-  const insight = failed
-    ? 'Gagal memuat data. Periksa koneksi ke server.'
-    : deltaProduksi === undefined
-      ? 'Memuat data produksi…'
-      : deltaProduksi === 0
-        ? 'Produksi stabil dibanding periode sebelumnya.'
-        : `Produksi ${deltaProduksi > 0 ? 'naik' : 'turun'} ${Math.abs(deltaProduksi)}% dibanding periode sebelumnya.`
+  const rendemenTinggi = rendemenOver100(rendemenCur.data ?? [], 'GRP')
+  const labelBulan = labelPeriode(month)
+  const labelBulanLalu = labelPeriode(prev.awal.slice(0, 7))
+  let insight: string
+  if (failed) {
+    insight = 'Gagal memuat data. Periksa koneksi ke server.'
+  } else if (memuat || deltaProduksi === undefined) {
+    insight = 'Memuat data produksi…'
+  } else if (deltaProduksi === 0) {
+    insight = `Produksi ${labelBulan}: ${formatNumber(outputCur)} m³ — stabil dibanding ${labelBulanLalu} (${formatNumber(outputPrev)}).`
+  } else {
+    insight = `Produksi ${labelBulan}: ${formatNumber(outputCur)} m³ — ${
+      deltaProduksi > 0 ? 'naik' : 'turun'
+    } ${Math.abs(deltaProduksi)}% dibanding ${labelBulanLalu} (${formatNumber(outputPrev)}).`
+  }
 
   return (
     <>
@@ -114,13 +134,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
               Produksi, rendemen, dan mutasi bahan per bulan
             </p>
           </div>
-          <Input
-            type='month'
-            value={month}
-            onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className='h-9 w-40'
-            aria-label='Pilih periode'
-          />
+          <MonthPicker value={month} onChange={setMonth} className='h-9 w-40' />
         </div>
 
         <p
@@ -132,19 +146,24 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           {insight}
         </p>
 
-        {loaded && topAnomaly && (
+        {loaded && !memuat && rendemenTinggi.length > 0 && (
           <p
             className='mt-3 rounded-md border border-warning-border bg-warning-surface px-3 py-2 text-xs text-warning'
             data-testid='insight-anomali'
           >
-            Anomali data: {formatNumber(anomalyRows)} baris rendemen di atas
-            100% (tertinggi {formatNumber(topAnomaly.maxPct)}% —{' '}
-            {topAnomaly.name}
-            {topAnomaly.maxDate && `, ${topAnomaly.maxDate}`}).
+            Rendemen bulanan di atas 100% (output memakai buffer WIP):{' '}
+            {rendemenTinggi
+              .map((g) => `${g.name} (${formatNumber(g.pct)}%)`)
+              .join(', ')}
+            .
           </p>
         )}
 
-        <KpiStrip className='mt-5 sm:grid-cols-2 lg:grid-cols-4'>
+        <KpiStrip
+          className={
+            'mt-5 sm:grid-cols-2 lg:grid-cols-4' + (memuat ? ' opacity-60' : '')
+          }
+        >
           <Kpi
             label='Total Produksi (m³)'
             value={loaded ? formatNumber(outputCur) : '—'}
@@ -153,7 +172,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             testId='kpi-total-produksi'
           />
           <Kpi
-            label='Realisasi vs Target'
+            label='Realisasi vs Target (hari aktif)'
             value={loaded ? formatNumber(realisasiCur) : '—'}
             suffix={loaded ? '%' : undefined}
             delta={loaded ? realisasiCur - realisasiPrev : undefined}
@@ -171,14 +190,15 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
             testId='kpi-rendemen'
           />
           <Kpi
-            label='Mutasi Total (kg)'
-            value={loaded ? formatNumber(mutasiCurKg) : '—'}
-            delta={loaded ? deltaPct(mutasiCurKg, mutasiPrevKg) : undefined}
+            label='Stok Akhir (m³)'
+            value={loaded ? formatNumber(stokCurM3) : '—'}
+            delta={loaded ? deltaPct(stokCurM3, stokPrevM3) : undefined}
+            caption={`KB kg: ${formatNumber(kbKg)} · vs periode sebelumnya`}
             testId='kpi-mutasi'
           />
         </KpiStrip>
 
-        {loaded && (
+        {loaded && !memuat && (
           <Suspense
             fallback={
               <div className='mt-4 grid gap-4 lg:grid-cols-2'>

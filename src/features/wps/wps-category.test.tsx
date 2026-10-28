@@ -137,6 +137,10 @@ describe('WpsPage — Lapisan 2 per kategori', () => {
     await expect
       .element(screen.getByTestId('insight-mesin'))
       .toHaveTextContent('Perubahan terbesar: MESIN B (+100%)')
+    // Realisasi vs target: A 60/100 = 60%, B 40/100 = 40% -> terendah B
+    await expect
+      .element(screen.getByTestId('insight-mesin'))
+      .toHaveTextContent('Realisasi terendah: MESIN B (40%)')
   })
 
   it('menampilkan chart tren produksi per mesin', async () => {
@@ -169,5 +173,23 @@ describe('WpsPage — Lapisan 2 per kategori', () => {
     await expect
       .element(screen.getByTestId('insight-rendemen'))
       .toHaveTextContent('Rendemen terendah: MLD (30%)')
+  })
+
+  it('menjelaskan makna warna di bawah ketiga chart', async () => {
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('keterangan-chart-produksi-mesin'))
+      .toHaveTextContent('perubahan % terbesar vs bulan lalu')
+    await expect
+      .element(screen.getByTestId('keterangan-chart-mutasi-kategori'))
+      .toHaveTextContent('murni peringkat komposisi stok akhir')
+    // KBKG (kayu bulat kg) tidak ikut — satuannya kg, bukan m³
+    await expect
+      .element(screen.getByTestId('keterangan-chart-mutasi-kategori'))
+      .toHaveTextContent('KBKG')
+    await expect
+      .element(screen.getByTestId('keterangan-chart-rendemen-grp'))
+      .toHaveTextContent('rendemen terendah')
   })
 })

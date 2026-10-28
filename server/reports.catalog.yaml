@@ -1,0 +1,3160 @@
+systems:
+  wps:
+    groups:
+      - grup: Barang Jadi
+        items:
+          - type: barang-jadi-hidup-detail
+            judul: Barang Jadi Hidup Detail
+            procedure: SP_LapBJHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: dashboard-barang-jadi
+            judul: Dashboard Barang Jadi
+            procedure: SPWps_LapDashboardBJ
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idBarangJadi
+              - NamaBarangJadi
+              - Awal
+              - Masuk
+              - Plus
+              - Minus
+              - Jual
+              - Akhir
+              - MasukALL
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 168
+          - type: mutasi-barang-jadi
+            judul: Mutasi Barang Jadi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: mutasi-barang-jadi-per-jenis-per-ukuran
+            judul: Mutasi Barang Jadi Per Jenis Per Ukuran
+            procedure: SP_LapMutasiBJPerJenisPerUkuran
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-barang-jadi-consolidated
+            judul: Rekap Produksi Barang Jadi Consolidated
+            procedure: SP_LapRekapProduksiBarangJadiConsolidated
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoProduksi
+              - Tanggal
+              - Shift
+              - NamaMesin
+              - JamKerja
+              - JmlhAnggota
+              - BJ
+              - Moulding
+              - Sanding
+              - WIP
+              - OutputPacking
+              - OutputReproses
+            contohBaris: 28
+          - type: rekap-produksi-packing-per-jenis-per-grade
+            judul: Rekap Produksi Packing Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiBarangJadiPerJenisPerGrade
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - NamaGrade
+              - Moulding
+              - Sanding
+              - WIP
+              - BarangJadi
+              - Output
+              - OutputReproses
+            contohBaris: 4
+          - type: saldo-barang-jadi-hidup-per-jenis-per-produk
+            judul: Saldo Barang Jadi Hidup Per Jenis Per Produk
+            procedure: SP_LapBJHidupPerProduk
+            shape: none
+            params: []
+            granted: true
+          - type: umur-barang-jadi-detail
+            judul: Umur Barang Jadi Detail
+            procedure: SP_LapUmurBarangJadi
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Cross Cut Akhir
+        items:
+          - type: cross-cut-akhir-hidup-detail
+            judul: Cross Cut Akhir Hidup Detail
+            procedure: SP_LapCCAkhirHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: dashboard-cross-cut-akhir
+            judul: Dashboard Cross Cut Akhir
+            procedure: SPWps_LapDashboardCCAkhir
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - CCAwal
+              - CCJual
+              - CCKeluar
+              - CCAkhir
+              - CCMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 252
+          - type: ketahanan-barang-cc-akhir
+            judul: Ketahanan Barang Cc Akhir
+            procedure: SP_LapKetahananBarangCCAkhir
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: mutasi-cross-cut-akhir
+            judul: Mutasi Cross Cut Akhir
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-produksi-cross-cut-akhir-consolidated
+            judul: Rekap Produksi Cross Cut Akhir Consolidated
+            procedure: SP_LapRekapProduksiCrossCutAkhirConsolidated
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-cross-cut-akhir-per-jenis-per-grade
+            judul: Rekap Produksi Cross Cut Akhir Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiCCAkhirPerJenisPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: umur-cross-cut-akhir-detail
+            judul: Umur Cross Cut Akhir Detail
+            procedure: SP_LapUmurCrossCutAkhir
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Finger Joint
+        items:
+          - type: dashboard-finger-joint
+            judul: Dashboard Finger Joint
+            procedure: SPWps_LapDashboardFJ
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - FJSawal
+              - FJJual
+              - FJKeluar
+              - FJAkhir
+              - FJMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 224
+          - type: finger-joint-hidup-detail
+            judul: Finger Joint Hidup Detail
+            procedure: SP_LapFingerJointHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: ketahanan-barang-finger-joint
+            judul: Ketahanan Barang Finger Joint
+            procedure: SP_LapKetahananBarangFingerJoint
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: mutasi-finger-joint
+            judul: Mutasi Finger Joint
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-produksi-finger-joint-consolidated
+            judul: Rekap Produksi Finger Joint Consolidated
+            procedure: SP_LapRekapProduksiFingerJointConsolidated
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoProduksi
+              - Tanggal
+              - Shift
+              - NamaMesin
+              - JamKerja
+              - JmlhAnggota
+              - CCAkhir
+              - S4S
+              - WIP
+              - OutPutFJ
+            contohBaris: 84
+          - type: rekap-produksi-finger-joint-per-jenis-per-grade
+            judul: Rekap Produksi Finger Joint Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiFingerJointPerJenisPerGrade
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - NamaGrade
+              - S4S
+              - CCAkhir
+              - WIP
+              - Output
+            contohBaris: 8
+          - type: umur-finger-joint-detail
+            judul: Umur Finger Joint Detail
+            procedure: SP_LapUmurFingerJoint
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Kayu Bulat Rambung
+        items:
+          - type: mutasi-kayu-bulat-kg
+            judul: Mutasi Kayu Bulat Kg
+            procedure: SP_Mutasi_KayuBulatKG
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - SaldoAwal
+              - SaldoMasuk
+              - SaldoKeluar
+              - SaldoJual
+              - SaldoAkhir
+            contohBaris: 4
+          - type: mutasi-kayu-bulat-kg-gantung
+            judul: Mutasi Kayu Bulat Kg Gantung
+            procedure: SP_Mutasi_KayuBulatKGV2
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - SaldoAwal
+              - SaldoMasuk
+              - SaldoKeluar
+              - SaldoJual
+              - SaldoAkhir
+            contohBaris: 4
+          - type: penerimaan-kayu-bulat-ext-kg
+            judul: Penerimaan Kayu Bulat Ext Kg
+            procedure: SP_PenKBOutTon_KG
+            shape: custom
+            params:
+              - name: NoKayuBulat
+                type: string
+            granted: true
+          - type: penerimaan-kayu-bulat-kg
+            judul: Penerimaan Kayu Bulat Kg
+            procedure: SP_PenKBInTon_KG
+            shape: custom
+            params:
+              - name: NoKayuBulat
+                type: string
+            granted: true
+          - type: penerimaan-kayu-bulat-per-supplier-kg
+            judul: Penerimaan Kayu Bulat Per Supplier Kg
+            procedure: SP_LapPenerimaanKBPerSupplier
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: perbandingan-kb-masuk-periode-1-dan-2-kg
+            judul: Perbandingan Kb Masuk Periode 1 Dan 2 Kg
+            procedure: null
+            shape: custom
+            params:
+              - name: StartDate1
+                type: string
+              - name: EndDate1
+                type: string
+              - name: StartDate2
+                type: string
+              - name: EndDate2
+                type: string
+          - type: rekap-pembelian-kayu-bulat-kg
+            judul: Rekap Pembelian Kayu Bulat Kg
+            procedure: SP_LapRekapPembelianKayuBulat
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: rekap-penerimaan-st-dari-sawmill-kg
+            judul: Rekap Penerimaan St Dari Sawmill Kg
+            procedure: SP_LapRekapPenerimaanSTDariSawmill
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-penerimaan-st-sawmill-costing-rambung
+            judul: Rekap Penerimaan St Sawmill Costing Rambung
+            procedure: null
+            shape: custom
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: StartDate
+                type: string
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: EndDate
+                type: string
+            catatan: multi-SP (2)
+          - type: rekap-rendemen-rambung-per-supplier
+            judul: Rekap Rendemen Rambung Per Supplier
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (2)
+          - type: saldo-hidup-kayu-bulat-kg
+            judul: Saldo Hidup Kayu Bulat Kg
+            procedure: null
+            shape: none
+            params: []
+            catatan: multi-SP (2)
+          - type: supplier-intel
+            judul: Supplier Intel
+            procedure: SP_LapSupplierIntel
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            contohBaris: 0
+          - type: timeline-kb-bulanan-rambung-kg
+            judul: Timeline Kb Bulanan Rambung Kg
+            procedure: SP_LapTimelineKBBulananKG
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: timeline-kb-harian-rambung-kg
+            judul: Timeline Kb Harian Rambung Kg
+            procedure: SP_LapTimelineKBHarianKG
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: umur-kayu-bulat-rambung
+            judul: Umur Kayu Bulat Rambung
+            procedure: SPWps_LapUmurKayuBulatRambung
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Status
+              - NoKayuBulat
+              - DateCreate
+              - Jenis
+              - NmSupplier
+              - NoTruk
+              - TonKBKG
+              - TanggalRacip
+              - TanggalLamaRacip
+              - DateUsage
+              - Model
+            contohBaris: 23
+      - grup: Kayu Bulat
+        items:
+          - type: balok-sudah-semprot
+            judul: Balok Sudah Semprot
+            procedure: SP_LapBalokSudahSemprot
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: hasil-output-racip-harian
+            judul: Hasil Output Racip Harian
+            procedure: SP_LapHasilOutputRacipHarian
+            shape: asof
+            params:
+              - name: EndDate
+                type: string
+            granted: true
+          - type: hidup-kb-per-group
+            judul: Hidup Kb Per Group
+            procedure: null
+            shape: none
+            params: []
+          - type: kayu-bulat-hidup
+            judul: Kayu Bulat Hidup
+            procedure: SPWps_LapkayuBulatHidup
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoKayuBulat
+              - DateCreate
+              - NmSupplier
+              - NoTruk
+              - Jenis
+              - Pcs
+              - BlkTepakai
+            contohBaris: 41
+          - type: kb-khusus-bangkang
+            judul: Kb Khusus Bangkang
+            procedure: SP_LapKBKhususBangkang
+            shape: none
+            params: []
+            granted: true
+          - type: mutasi-hasil-racip
+            judul: Mutasi Hasil Racip
+            procedure: SPWps_LapMutasiHasilRacip
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - Sawal
+              - Masuk
+              - Keluar
+              - AdjusmentInput
+              - AdjusmentOutput
+              - Akhir
+            contohBaris: 13
+          - type: mutasi-kayu-bulat
+            judul: Mutasi Kayu Bulat
+            procedure: SP_Mutasi_KayuBulat
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - SaldoAwal
+              - SaldoMasuk
+              - SaldoKeluar
+              - SaldoJual
+              - SaldoAkhir
+            contohBaris: 8
+          - type: mutasi-kayu-bulat-gantung
+            judul: Mutasi Kayu Bulat Gantung
+            procedure: SP_Mutasi_KayuBulatV2B
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - SaldoAwal
+              - SaldoMasuk
+              - SaldoKeluar
+              - SaldoJual
+              - SaldoAkhir
+            contohBaris: 8
+          - type: mutasi-racip-detail
+            judul: Mutasi Racip Detail
+            procedure: SPWps_LapMutasiRacipanDetail
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - Tebal
+              - Lebar
+              - Panjang
+              - Sawal
+              - Sawal1
+              - SawalJlhBtg
+              - Masuk
+              - MskJlhBtg
+              - Keluar
+              - KeluarJlhBtg
+              - AdjusmentInput
+              - AdjInJlhBtg
+              - AdjusmentOutput
+              - AdjOutJlhBtg
+              - Akhir
+              - AkhirJlhBtg
+            contohBaris: 886
+          - type: penerimaan-kayu-bulat-ext-ton
+            judul: Penerimaan Kayu Bulat Ext Ton
+            procedure: SP_PenKBOutTon
+            shape: custom
+            params:
+              - name: NoKayuBulat
+                type: string
+            granted: true
+          - type: penerimaan-kayu-bulat-int-ton
+            judul: Penerimaan Kayu Bulat Int Ton
+            procedure: SP_PenKBInTon
+            shape: custom
+            params:
+              - name: NoKayuBulat
+                type: string
+            granted: true
+          - type: penerimaan-kayu-bulat-per-supplier
+            judul: Penerimaan Kayu Bulat Per Supplier
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: penerimaan-kayu-bulat-per-supplier-grafik
+            judul: Penerimaan Kayu Bulat Per Supplier Grafik
+            procedure: SP_LaPenerimaanKayuBulatBulananPerSupplier
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: penerimaan-kayu-bulat-per-supplier-group
+            judul: Penerimaan Kayu Bulat Per Supplier Group
+            procedure: SP_LapPenerimaanKBPerSupplierGroup
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: perbandingan-kb-masuk-periode-1-dan-2
+            judul: Perbandingan Kb Masuk Periode 1 Dan 2
+            procedure: SP_LapPerbandinganKbMasukPeriode1dan2
+            shape: custom
+            params:
+              - name: Periode1Awal
+                type: date
+              - name: Periode1Akhir
+                type: date
+              - name: Periode2Awal
+                type: date
+              - name: Periode2Akhir
+                type: date
+            granted: true
+          - type: rekap-pembelian-kayu-bulat
+            judul: Rekap Pembelian Kayu Bulat
+            procedure: SPWps_LapRekapPembelianKayuBulat
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: saldo-kayu-bulat
+            judul: Saldo Kayu Bulat
+            procedure: SPWps_LapSaldoKayuBulat
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NokayuBulat
+              - DateCreate
+              - DateUsage
+              - Jenis
+              - NmSupplier
+              - Ton
+            contohBaris: 1
+          - type: stock-opname-kb
+            judul: Stock Opname Kb
+            procedure: null
+            shape: none
+            params: []
+          - type: stock-racip-kayu-lat
+            judul: Stock Racip Kayu Lat
+            procedure: null
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+          - type: target-masuk-bb-bulanan
+            judul: Target Masuk Bb Bulanan
+            procedure: SP_LapTargetMasukBBBulanan
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: target-masuk-bb-harian
+            judul: Target Masuk Bb Harian
+            procedure: SP_LapTargetMasukBB
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: timeline-kayu-bulat-bulanan
+            judul: Timeline Kayu Bulat Bulanan
+            procedure: SP_LapTimelineKBBulanan
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: timeline-kayu-bulat-harian
+            judul: Timeline Kayu Bulat Harian
+            procedure: SP_LapTimelineKBHarian
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: umur-kayu-bulat-non-rambung
+            judul: Umur Kayu Bulat Non Rambung
+            procedure: SPWps_LapUmurKayuBulat
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Status
+              - NoKayuBulat
+              - DateCreate
+              - Jenis
+              - NmSupplier
+              - NoTruk
+              - TonKBKG
+              - TanggalRacip
+              - TanggalLamaRacip
+              - DateUsage
+            contohBaris: 25
+      - grup: Laminating
+        items:
+          - type: dashboard-laminating
+            judul: Dashboard Laminating
+            procedure: SPWps_LapDashboardLaminating
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - LmtAwal
+              - LmtJual
+              - LmtKeluar
+              - LmtAkhir
+              - LmtMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 196
+          - type: ketahanan-barang-laminating
+            judul: Ketahanan Barang Laminating
+            procedure: SP_LapKetahananBarangLaminating
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: laminating-hidup-detail
+            judul: Laminating Hidup Detail
+            procedure: SP_LapLaminatingHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: mutasi-laminating
+            judul: Mutasi Laminating
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-produksi-laminating-consolidated
+            judul: Rekap Produksi Laminating Consolidated
+            procedure: SP_LapRekapProduksiLaminatingConsolidated
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-laminating-per-jenis-per-grade
+            judul: Rekap Produksi Laminating Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiLaminatingPerJenisPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: umur-laminating-detail
+            judul: Umur Laminating Detail
+            procedure: SP_LapUmurLaminating
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Management
+        items:
+          - type: dashboard-ru
+            judul: Dashboard Ru
+            procedure: SP_LapProduktivitasDashboard
+            shape: asof
+            params:
+              - name: Periode
+                type: date
+            granted: true
+          - type: discrepancy-rekap-mutasi
+            judul: Discrepancy Rekap Mutasi
+            procedure: SP_LapRekapMutasiV2
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: UsingMode
+                type: string
+            granted: true
+            kolom:
+              - Tanggal
+              - S4S
+              - MLD
+              - BJadi
+              - LMT
+              - CCAkhir
+              - FJ
+              - SAND
+              - ST
+              - KB
+              - KBKG
+              - TotalAkhir
+            contohBaris: 28
+          - type: flow-produksi-per-periode
+            judul: Flow Produksi Per Periode
+            procedure: SPWps_LapFlowProduksiPerPeriode
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Group
+              - KBTonBeli
+              - KBRacip
+              - STRacipan
+              - STVacuumStick
+              - STKDIn
+              - STKDOut
+              - STm3Input
+              - WIPBersihOutput
+              - WIPFJInput
+              - WIPFJOutput
+              - WIPMouldingInput
+              - WIPMouldingOutput
+            contohBaris: 12
+          - type: hasil-produksi-mesin-lembur-dan-non-lembur
+            judul: Hasil Produksi Mesin Lembur Dan Non Lembur
+            procedure: SPWps_LapLemburPerMesin
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoProduksi
+              - Tanggal
+              - Hari
+              - Shift
+              - NamaMesin
+              - JamKerja
+              - JamNormal
+              - JamLembur
+              - JmlhAnggota
+              - IsTanggalMerah
+              - Output
+              - OutputLembur
+            contohBaris: 475
+          - type: label-perhari
+            judul: Label Perhari
+            procedure: SPWps_LapLabelPerhari
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoLabel
+              - NoUrut
+              - NoSPK
+              - NoSPKAsal
+              - Mesin
+              - Jenis
+              - Tebal
+              - Lebar
+              - Panjang
+              - JmlhBatang
+              - Berat
+              - Ket
+            contohBaris: 4074
+          - type: produksi-hulu-hilir
+            judul: Produksi Hulu Hilir
+            procedure: SPWps_LapProduksiSemuaMesinV2
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Tanggal
+              - NamaMesin
+              - Target
+              - Input
+              - Output
+              - Rend
+              - RendPerMesin
+              - Tebal
+            contohBaris: 366
+          - type: produksi-semua-mesin
+            judul: Produksi Semua Mesin
+            procedure: SPWps_LapProduksiSemuaMesin
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Tanggal
+              - NamaMesin
+              - Target
+              - TargetRend
+              - Input
+              - Output
+              - Rend
+              - RendPerMesin
+            contohBaris: 364
+          - type: rekap-mutasi
+            judul: Rekap Mutasi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (17)
+          - type: rekap-mutasi-cross-tab
+            judul: Rekap Mutasi Cross Tab
+            procedure: SP_LapRekapMutasi
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Tanggal
+              - BJadi
+              - CCAkhir
+              - FJ
+              - KB
+              - KBKG
+              - LMT
+              - MLD
+              - S4S
+              - SAND
+              - ST
+              - TotalAkhir
+            contohBaris: 28
+          - type: rekap-stock-on-hand
+            judul: Rekap Stock On Hand
+            procedure: null
+            shape: custom
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (10)
+          - type: stock-hidup-per-nospk
+            judul: Stock Hidup Per Nospk
+            procedure: SP_LapSemuaStockHidupPerSPK
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: UsingMode
+                type: string
+            granted: true
+          - type: stock-hidup-per-nospk-discrepancy
+            judul: Stock Hidup Per Nospk Discrepancy
+            procedure: SP_LapSemuaStockHidupPerSPK
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: UsingMode
+                type: string
+            granted: true
+      - grup: Moulding
+        items:
+          - type: dashboard-moulding
+            judul: Dashboard Moulding
+            procedure: SPWps_LapDashboardMoulding
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - MldAwal
+              - MldJual
+              - MldKeluar
+              - MldAkhir
+              - MldMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 196
+          - type: ketahanan-barang-moulding
+            judul: Ketahanan Barang Moulding
+            procedure: SP_LapKetahananBarangMoulding
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: moulding-hidup-detail
+            judul: Moulding Hidup Detail
+            procedure: SP_LapMouldingHidupDetail
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: mutasi-moulding
+            judul: Mutasi Moulding
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-produksi-moulding-consolidated
+            judul: Rekap Produksi Moulding Consolidated
+            procedure: SP_LapRekapProduksiMouldingConsolidated
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-moulding-per-jenis-per-grade
+            judul: Rekap Produksi Moulding Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiMouldingPerJenisPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: umur-moulding-detail
+            judul: Umur Moulding Detail
+            procedure: SP_LapUmurMoulding
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Penjualan Kayu
+        items:
+          - type: koordinat-tanah
+            judul: Koordinat Tanah
+            procedure: null
+            shape: custom
+            params:
+              - name: NoSPK
+                type: string
+            catatan: multi-SP (2)
+          - type: penjualan-barang-jadi-m3
+            judul: Penjualan Barang Jadi M3
+            procedure: SP_LapPenjualanBarangJadi
+            shape: custom
+            params:
+              - name: NoJual
+                type: string
+            granted: true
+          - type: penjualan-lokal
+            judul: Penjualan Lokal
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: rekap-penjualan-ekspor-per-buyer-per-produk
+            judul: Rekap Penjualan Ekspor Per Buyer Per Produk
+            procedure: SP_LapJualPerBuyerPerProduk
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: rekap-penjualan-ekspor-per-produk-per-buyer
+            judul: Rekap Penjualan Ekspor Per Produk Per Buyer
+            procedure: SP_LapJualPerProdukPerBuyer
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: rekap-penjualan-per-produk
+            judul: Rekap Penjualan Per Produk
+            procedure: SP_LapJualPerProduk
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: surat-jalan
+            judul: Surat Jalan
+            procedure: SP_CetakSuratJalan
+            shape: custom
+            params:
+              - name: NoJual
+                type: string
+            granted: true
+          - type: timeline-rekap-penjualan-per-produk
+            judul: Timeline Rekap Penjualan Per Produk
+            procedure: SP_LapJualPerProdukTimeLine
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+      - grup: Proses Produksi
+        items:
+          - type: produksi-cc-akhir-per-nomor-produksi
+            judul: Produksi Cc Akhir Per Nomor Produksi
+            procedure: SPWps_LapProduksiCCAkhir
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-fj-per-nomor-produksi
+            judul: Produksi Fj Per Nomor Produksi
+            procedure: SPWps_LapProduksiFJ
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-laminating-per-nomor-produksi
+            judul: Produksi Laminating Per Nomor Produksi
+            procedure: SPWps_LapProduksiLaminating
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-moulding-per-nomor-produksi
+            judul: Produksi Moulding Per Nomor Produksi
+            procedure: SPWps_LapProduksiMoulding
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-packing-per-nomor-produksi
+            judul: Produksi Packing Per Nomor Produksi
+            procedure: SPWps_LapProduksiPacking
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-s4s-per-nomor-produksi
+            judul: Produksi S4s Per Nomor Produksi
+            procedure: SPWps_LapProduksiS4S
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: produksi-sanding-per-nomor-produksi
+            judul: Produksi Sanding Per Nomor Produksi
+            procedure: SPWps_LapProduksiSanding
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+      - grup: Rendemen Kayu
+        items:
+          - type: produksi-per-spk
+            judul: Produksi Per Spk
+            procedure: SP_LapProduksiPerSPK
+            shape: custom
+            params:
+              - name: NoSPK
+                type: string
+            granted: true
+          - type: rekap-rendemen-non-rambung
+            judul: Rekap Rendemen Non Rambung
+            procedure: SP_LapRekapRendemenNonRambung
+            shape: custom
+            params:
+              - name: Tahun
+                type: int
+              - name: Bulan
+                type: int
+            granted: true
+          - type: rekap-rendemen-rambung
+            judul: Rekap Rendemen Rambung
+            procedure: SP_LapRekapRendemenRambung
+            shape: custom
+            params:
+              - name: Tahun
+                type: int
+              - name: Bulan
+                type: int
+            granted: true
+          - type: rendemen-semua-proses
+            judul: Rendemen Semua Proses
+            procedure: SP_LapRekapRendemenSemuaProses
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Tanggal
+              - Input
+              - Output
+              - GRP
+            contohBaris: 196
+      - grup: Reproses
+        items:
+          - type: dashboard-reproses
+            judul: Dashboard Reproses
+            procedure: SPWps_LapDashboardReproses
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: ketahanan-barang-reproses
+            judul: Ketahanan Barang Reproses
+            procedure: SP_LapKetahananBarangReproses
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: mutasi-reproses
+            judul: Mutasi Reproses
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: reproses-hidup-detail
+            judul: Reproses Hidup Detail
+            procedure: SP_LapReprosesHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: umur-reproses-detail
+            judul: Umur Reproses Detail
+            procedure: SP_LapUmurReproses
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: S4s
+        items:
+          - type: dashboard-s4s
+            judul: Dashboard S4s
+            procedure: SPWps_LapDashboardS4S
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - S4SAwal
+              - S4SMasuk
+              - S4SJual
+              - S4SKeluar
+            contohBaris: 224
+          - type: dashboard-s4s-v2
+            judul: Dashboard S4s V2
+            procedure: SPWps_LapDashboardS4S2
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - S4SAwal
+              - S4SJual
+              - S4SKeluar
+              - S4SAkhir
+              - S4SMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 448
+          - type: grade-abc-harian
+            judul: Grade Abc Harian
+            procedure: SPWps_LapGradeABCHarian
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - IdGradeAbc
+              - NamaGrade
+              - JmlhBatang
+            contohBaris: 46704
+          - type: ketahanan-barang-s4s
+            judul: Ketahanan Barang S4s
+            procedure: SP_LapKetahananBarangS4S
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: label-s4s-hidup-per-jenis-kayu
+            judul: Label S4s Hidup Per Jenis Kayu
+            procedure: SP_LapS4SPerJenisKayu
+            shape: none
+            params: []
+            granted: true
+          - type: label-s4s-hidup-per-produk-per-jenis-kayu
+            judul: Label S4s Hidup Per Produk Per Jenis Kayu
+            procedure: SP_LapS4SHidupPerProdukdanPerJenis
+            shape: none
+            params: []
+            granted: true
+          - type: mutasi-s4s
+            judul: Mutasi S4s
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: output-produksi-s4s-per-grade
+            judul: Output Produksi S4s Per Grade
+            procedure: SPWps_LapProduksiOutputS4SPerGrade
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoProduksi
+              - Tanggal
+              - Hari
+              - NamaMesin
+              - Jenis
+              - Target
+              - Output
+              - Jns
+            contohBaris: 131
+          - type: rekap-produksi-s4s-consolidated
+            judul: Rekap Produksi S4s Consolidated
+            procedure: SP_LapRekapProduksiS4SConsolidated
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-s4s-per-jenis-per-grade
+            judul: Rekap Produksi S4s Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiS4SPerJenisPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-s4s-rambung-per-grade
+            judul: Rekap Produksi S4s Rambung Per Grade
+            procedure: SP_LapRekapProduksiS4SRambungPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: s4s-hidup-detail
+            judul: S4s Hidup Detail
+            procedure: SP_LapS4SHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: umur-s4s-detail
+            judul: Umur S4s Detail
+            procedure: SP_LapUmurS4S
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Sanding
+        items:
+          - type: dashboard-sanding
+            judul: Dashboard Sanding
+            procedure: SPWps_LapDashboardSanding
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - idGrade
+              - NamaGrade
+              - SandAwal
+              - SandJual
+              - SandKeluar
+              - SandAkhir
+              - SandMasuk
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 308
+          - type: ketahanan-barang-sanding
+            judul: Ketahanan Barang Sanding
+            procedure: SP_LapKetahananBarangSanding
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: mutasi-sanding
+            judul: Mutasi Sanding
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-produksi-sanding-consolidated
+            judul: Rekap Produksi Sanding Consolidated
+            procedure: SP_LapRekapProduksiSandingConsolidated
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-produksi-sanding-per-jenis-per-grade
+            judul: Rekap Produksi Sanding Per Jenis Per Grade
+            procedure: SP_LapRekapProduksiSandingPerJenisPerGrade
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: sanding-hidup-detail
+            judul: Sanding Hidup Detail
+            procedure: SP_LapSandingHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: umur-sanding-detail
+            judul: Umur Sanding Detail
+            procedure: SP_LapUmurSanding
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Sawn Timber
+        items:
+          - type: dashboard-sawn-timber
+            judul: Dashboard Sawn Timber
+            procedure: SPWps_LapDashboardSawnTimber
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DATE
+              - idJenis
+              - Jenis
+              - Awal
+              - Masuk
+              - Beli
+              - AdjustmentPlus
+              - AdjustmentMinus
+              - BongkarSusunPlus
+              - BongkarSusunMinus
+              - Jual
+              - Keluar
+              - Akhir
+              - MasukALL
+              - KeluarALL
+              - Akhir2
+              - CTR
+            contohBaris: 308
+          - type: detail-lembar-tally-hasil-sawmill
+            judul: Detail Lembar Tally Hasil Sawmill
+            procedure: SPWps_DetailLembarTallyHasilSawmill
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: kd-keluar-masuk
+            judul: Kd Keluar Masuk
+            procedure: SP_LapKDKeluarMasuk
+            shape: custom
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+              - name: NoRuangKD
+                type: string
+            granted: true
+          - type: kd-upah-per-customer
+            judul: Kd Upah Per Customer
+            procedure: SP_LapKDUpahPerCutomer
+            shape: none
+            params: []
+            granted: true
+          - type: kd-upah-per-no-proc-kd-detail
+            judul: Kd Upah Per No Proc Kd Detail
+            procedure: SP_LapKDUpahPerNoProcKDPerCustomerDetail
+            shape: custom
+            params:
+              - name: NoProcKD
+                type: string
+            granted: true
+          - type: ketahanan-barang-st
+            judul: Ketahanan Barang St
+            procedure: SP_LapKetahananBarangST
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: label-st-hidup-detail
+            judul: Label St Hidup Detail
+            procedure: SP_LapLabelSTHidupDetail
+            shape: none
+            params: []
+            granted: true
+          - type: lembar-perhitungan-upah-borongan-sawmill
+            judul: Lembar Perhitungan Upah Borongan Sawmill
+            procedure: SPWps_LapUpahSawmill
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: mutasi-kd
+            judul: Mutasi Kd
+            procedure: SP_LapMutasiKD
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: mutasi-sawn-timber-ton
+            judul: Mutasi Sawn Timber Ton
+            procedure: SP_Mutasi_ST
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Jenis
+              - Awal
+              - Masuk
+              - Beli
+              - AdjustmentPlus
+              - AdjustmentMinus
+              - BongkarSusunPlus
+              - BongkarSusunMinus
+              - Jual
+              - Keluar
+              - Akhir
+            contohBaris: 10
+          - type: pemakaian-obat-vacuum
+            judul: Pemakaian Obat Vacuum
+            procedure: SP_LapPemakaianObatVacuum
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            contohBaris: 0
+          - type: pembelian-st-per-supplier-ton
+            judul: Pembelian St Per Supplier Ton
+            procedure: SP_LapPembelianSTPerSupplier
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: pembelian-st-timeline-ton
+            judul: Pembelian St Timeline Ton
+            procedure: SP_LapPembelianSTTimeline
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: penerimaan-st-hasil-sawmill
+            judul: Penerimaan St Hasil Sawmill
+            procedure: null
+            shape: custom
+            params:
+              - name: NoPenST
+                type: string
+            catatan: multi-SP (2)
+          - type: penerimaan-st-sawmill-kg
+            judul: Penerimaan St Sawmill Kg
+            procedure: SPWps_LapRekapPenerimaanSawmilRp
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - InOut
+              - NoPenerimaanST
+              - TglLaporan
+              - NoKayuBulat
+              - NmSupplier
+              - NmSupplier2
+              - NmSupplier3
+              - NoTruk
+              - Jenis
+              - NoMeja
+              - NamaGrade
+              - Harga
+              - JmlhBatang
+              - KBTon
+              - STTon
+              - NamaGrade1
+              - Ket
+            contohBaris: 119
+          - type: qc-sawmill
+            judul: Qc Sawmill
+            procedure: SP_LapQCSawmill
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: qc-sawmill-discrepancy
+            judul: Qc Sawmill Discrepancy
+            procedure: SP_LapQCSawmillDescr
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: qc-sawmill-summary
+            judul: Qc Sawmill Summary
+            procedure: SP_LapQCSawmillSummary
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-hasil-sawmill-per-meja
+            judul: Rekap Hasil Sawmill Per Meja
+            procedure: SPWps_LapRekapHasilSawmillPerMeja
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoMeja
+              - TglSawmill
+              - Tebal
+              - UOM
+              - TonRacip
+            contohBaris: 510
+          - type: rekap-hasil-sawmill-per-meja-semua-meja
+            judul: Rekap Hasil Sawmill Per Meja Semua Meja
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-hasil-sawmill-per-meja-upah-borongan
+            judul: Rekap Hasil Sawmill Per Meja Upah Borongan
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: rekap-kamar-kd
+            judul: Rekap Kamar Kd
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (3)
+          - type: rekap-pcs-telly-hasil-sawmill
+            judul: Rekap Pcs Telly Hasil Sawmill
+            procedure: SPWps_RekapPcsTellyHasilSawmill
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: rekap-penerimaan-st-non-rambung
+            judul: Rekap Penerimaan St Non Rambung
+            procedure: SPWps_LapRekapPenSTDariSawmill
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NoPenerimaanST
+              - NmSupplier
+              - NoTruk
+              - TglLaporan
+              - NoKayuBulat
+              - Jenis
+              - NoMeja
+              - KBTon
+              - STTon
+              - Area
+              - Potong
+              - PcsKB
+              - PcsST
+              - TotalTblST
+            contohBaris: 24
+          - type: rekap-produktivitas-sawmill
+            judul: Rekap Produktivitas Sawmill
+            procedure: SPWps_LapRekapProduktivitasSawmill
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - TglSawmill
+              - JlhMeja
+              - GroupKayu
+              - TonST
+            contohBaris: 80
+          - type: rekap-st-penjualan
+            judul: Rekap St Penjualan
+            procedure: SP_LapRekapSTPenjualan
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: saldo-st-hidup-per-produk
+            judul: Saldo St Hidup Per Produk
+            procedure: SPWps_LapSTHidupPerProduk
+            shape: none
+            params: []
+            granted: true
+          - type: serah-terima-st-kamar-kd
+            judul: Serah Terima St Kamar Kd
+            procedure: SP_LapSerahTerimaSTKDKeluar
+            shape: custom
+            params:
+              - name: NoProcKD
+                type: string
+            granted: true
+          - type: spk-sawmill
+            judul: Spk Sawmill
+            procedure: null
+            shape: custom
+            params:
+              - name: NoSPK
+                type: string
+              - name: IdProduk
+                type: string
+            catatan: multi-SP (2)
+          - type: st-basah-hidup-per-umur-kayu-ton
+            judul: St Basah Hidup Per Umur Kayu Ton
+            procedure: SP_LapSTBasahHidupPerUmurKayu
+            shape: none
+            params: []
+            granted: true
+          - type: st-hidup-kering
+            judul: St Hidup Kering
+            procedure: SP_LapSTHidupKering
+            shape: custom
+            params:
+              - name: Hari
+                type: int
+              - name: Mode
+                type: string
+            granted: true
+          - type: st-hidup-per-spk
+            judul: St Hidup Per Spk
+            procedure: SPWps_LapSTHidupPerProdukV2
+            shape: none
+            params: []
+            granted: true
+          - type: st-masuk-per-group
+            judul: St Masuk Per Group
+            procedure: SPWps_LapSTMasukPerGroup
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Group
+              - Jenis
+              - Tebal
+              - STTon
+            contohBaris: 17
+          - type: st-rambung-mc1-mc2-detail
+            judul: St Rambung Mc1 Mc2 Detail
+            procedure: SP_LapSTRambungMC1danMC2Detail
+            shape: none
+            params: []
+            granted: true
+          - type: st-rambung-mc1-mc2-rangkuman
+            judul: St Rambung Mc1 Mc2 Rangkuman
+            procedure: SP_LapSTRambungMC1danMC2Rangkuman
+            shape: none
+            params: []
+            granted: true
+          - type: st-sawmill-hari-tebal-lebar
+            judul: St Sawmill Hari Tebal Lebar
+            procedure: SPWps_LapSTSawmillPerHariPerTebalPerLebar
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: st-sawmill-masuk-per-group
+            judul: St Sawmill Masuk Per Group
+            procedure: SP_LapSTSawmillMasukPerGroup
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stock-st-basah
+            judul: Stock St Basah
+            procedure: SP_LapStockSTBasah
+            shape: asof
+            params:
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stock-st-kering
+            judul: Stock St Kering
+            procedure: SP_LapStockSTKering
+            shape: asof
+            params:
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stok-opname-st-detail-kd
+            judul: Stok Opname St Detail Kd
+            procedure: SP_LapStokOpnameSTDetail
+            shape: custom
+            params:
+              - name: NoProcKD
+                type: string
+              - name: NoProcKdLookup
+                type: string
+            granted: true
+          - type: total-bagus-kulit-rambung
+            judul: Total Bagus Kulit Rambung
+            procedure: null
+            shape: custom
+            params:
+              - name: tanggal
+                type: date
+          - type: tracing-st
+            judul: Tracing St
+            procedure: SP_LapTracingST
+            shape: custom
+            params:
+              - name: NoProduk
+                type: string
+            granted: true
+          - type: umur-sawn-timber-detail-ton
+            judul: Umur Sawn Timber Detail Ton
+            procedure: SPWps_LapUmurST
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+            granted: true
+      - grup: Verifikasi
+        items:
+          - type: bahan-terpakai
+            judul: Bahan Terpakai
+            procedure: null
+            shape: asof
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+            catatan: multi-SP (2)
+          - type: bahan-yang-dihasilkan
+            judul: Bahan Yang Dihasilkan
+            procedure: SPWps_LapBahanYangDihasilkan
+            shape: asof
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+            granted: true
+          - type: kapasitas-racip-kayu-bulat-hidup
+            judul: Kapasitas Racip Kayu Bulat Hidup
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (4)
+          - type: label-nyangkut
+            judul: Label Nyangkut
+            procedure: SPWps_LapLabelNyangkut
+            shape: none
+            params: []
+            granted: true
+          - type: rangkuman-bongkar-susun
+            judul: Rangkuman Bongkar Susun
+            procedure: SPWps_LapRangkumanBongkarSusun
+            shape: asof
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+            granted: true
+          - type: rangkuman-jumlah-label-input
+            judul: Rangkuman Jumlah Label Input
+            procedure: SPWps_LapRangkumanJlhLabelInput
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Group
+              - NoProduksi
+              - NamaMesin
+              - LabelIn
+              - KubikIN
+              - LabelOut
+              - KubikOut
+            contohBaris: 475
+  pps:
+    groups:
+      - grup: Bahan Baku
+        items:
+          - type: mutasi-bahan-baku
+            judul: Mutasi Bahan Baku
+            procedure: SP_PPSLapMutasiBahanBaku
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: penerimaan-bahan-baku
+            judul: Penerimaan Bahan Baku
+            procedure: SP_LapPenerimaanBahanBaku
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DateCreate
+              - DateUsage
+              - Jenis
+              - NoBahanBaku
+              - NoPallet
+              - NoSak
+              - Berat
+              - NmSupplier
+              - Keterangan
+              - Moisture
+              - MeltingIndex
+              - Elasticity
+              - IdStatus
+              - MoistureSTD
+              - MltIndxSTD
+              - ElasticSTD
+            contohBaris: 1287
+          - type: penerimaan-bahan-baku-per-material
+            judul: Penerimaan Bahan Baku Per Material
+            procedure: SP_LapPenerimaanBahanBakuPerMaterial
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - DateCreate
+              - Jenis
+              - NoBahanBaku
+              - NoPallet
+              - NoSak
+              - Berat
+              - Keterangan
+            contohBaris: 1287
+          - type: penerimaan-bahan-baku-per-supplier
+            judul: Penerimaan Bahan Baku Per Supplier
+            procedure: SP_LapPenerimaanBahanBakuPerSupplier
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - NmSupplier
+              - NoBahanBaku
+              - Jenis
+              - NoPallet
+              - JmlhSak
+              - Berat
+            contohBaris: 1287
+          - type: stock-bahan-baku-per-material
+            judul: Stock Bahan Baku Per Material
+            procedure: SP_LapStockBahanBakuPerMaterial
+            shape: custom
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: IdWarehouse
+                type: string
+            granted: true
+          - type: stock-bahan-baku-per-supplier
+            judul: Stock Bahan Baku Per Supplier
+            procedure: SP_LapStockBahanBakuPerSupplier
+            shape: custom
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: IdWarehouse
+                type: string
+            granted: true
+          - type: stok-bahan-baku
+            judul: Stok Bahan Baku
+            procedure: SP_LapStokBahanBakuV2
+            shape: custom
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-bahan-baku
+            judul: Umur Bahan Baku
+            procedure: SP_LapUmurBahanBaku
+            shape: custom
+            params:
+              - name: Umur1
+                type: int
+              - name: Umur2
+                type: int
+              - name: Umur3
+                type: int
+              - name: Umur4
+                type: int
+              - name: Umur5
+                type: int
+            granted: true
+      - grup: Barang Jadi Pps
+        items:
+          - type: mutasi-barang-jadi-pps
+            judul: Mutasi Barang Jadi Pps
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (3)
+          - type: stok-barang-jadi
+            judul: Stok Barang Jadi
+            procedure: SP_LapStokBarangjadiV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+      - grup: Bonggol
+        items:
+          - type: mutasi-bonggolan
+            judul: Mutasi Bonggolan
+            procedure: SP_PPSLapMutasiBonggolan
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stok-bonggolan
+            judul: Stok Bonggolan
+            procedure: SP_LapStokBonggolanV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-bonggolan
+            judul: Umur Bonggolan
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+      - grup: Broker
+        items:
+          - type: broker-produksi
+            judul: Broker Produksi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: mutasi-broker
+            judul: Mutasi Broker
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (3)
+          - type: produktivitas-broker
+            judul: Produktivitas Broker
+            procedure: SP_LapProduktivitasBroker
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stock-broker-per-material
+            judul: Stock Broker Per Material
+            procedure: null
+            shape: custom
+            params:
+              - name: status
+                type: string
+              - name: warehouse
+                type: string
+          - type: stok-broker
+            judul: Stok Broker
+            procedure: SP_LapStokBrokerV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-broker
+            judul: Umur Broker
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+      - grup: Crusher
+        items:
+          - type: crusher-produksi
+            judul: Crusher Produksi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: mutasi-crusher
+            judul: Mutasi Crusher
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (2)
+          - type: stok-crusher
+            judul: Stok Crusher
+            procedure: SP_LapStokCrusherV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-crusher
+            judul: Umur Crusher
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+      - grup: Dashboard Management
+        items:
+          - type: dashboard-produktifitas
+            judul: Dashboard Produktifitas
+            procedure: null
+            shape: asof
+            params:
+              - name: Tanggal
+                type: date
+          - type: hasil-produksi
+            judul: Hasil Produksi
+            procedure: SP_LaporanHasilProduksi
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+            kolom:
+              - Tanggal
+              - NamaMesin
+              - NamaBJ
+              - Pcs
+              - Ket
+            contohBaris: 260
+          - type: semua-label
+            judul: Semua Label
+            procedure: SP_LaporanSemuaLabel
+            shape: none
+            params: []
+            granted: true
+      - grup: Furniture Wip
+        items:
+          - type: mutasi-furniture-wip
+            judul: Mutasi Furniture Wip
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (3)
+          - type: stok-furniture-wip
+            judul: Stok Furniture Wip
+            procedure: SP_LapStokFurnitureWIPV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+      - grup: Gilingan
+        items:
+          - type: gilingan-produksi
+            judul: Gilingan Produksi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: mutasi-gilingan
+            judul: Mutasi Gilingan
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (2)
+          - type: stok-gilingan
+            judul: Stok Gilingan
+            procedure: SP_LapStokGilinganV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-gilingan
+            judul: Umur Gilingan
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+      - grup: Hasil Produksi Harian
+        items:
+          - type: hasil-produksi-harian-broker
+            judul: Hasil Produksi Harian Broker
+            procedure: SP_LapHasilProduksiHarianBroker
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-crusher
+            judul: Hasil Produksi Harian Crusher
+            procedure: SP_LapHasilProduksiHarianCrusher
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-gilingan
+            judul: Hasil Produksi Harian Gilingan
+            procedure: SP_LapHasilProduksiHarianGilingan
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-hot-stamping
+            judul: Hasil Produksi Harian Hot Stamping
+            procedure: SP_LapHasilProduksiHarianHotStamping
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-inject
+            judul: Hasil Produksi Harian Inject
+            procedure: SP_LapHasilProduksiHarianInject
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-mixer
+            judul: Hasil Produksi Harian Mixer
+            procedure: SP_LapHasilProduksiHarianMixer
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-packing
+            judul: Hasil Produksi Harian Packing
+            procedure: SP_LapHasilProduksiHarianPacking
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-pasang-kunci
+            judul: Hasil Produksi Harian Pasang Kunci
+            procedure: SP_LapHasilProduksiHarianPasangKunci
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-spanner
+            judul: Hasil Produksi Harian Spanner
+            procedure: SP_LapHasilProduksiHarianSpanner
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+          - type: hasil-produksi-harian-washing
+            judul: Hasil Produksi Harian Washing
+            procedure: SP_LapHasilProduksiHarianWashing
+            shape: custom
+            params:
+              - name: NoProduksi
+                type: string
+            granted: true
+      - grup: Laporan Qc
+        items:
+          - type: qc-harian-bahan-baku
+            judul: Qc Harian Bahan Baku
+            procedure: SP_LaporanHasilQCHarianBB
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: qc-harian-broker
+            judul: Qc Harian Broker
+            procedure: SP_LaporanHasilQCHarianBroker
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: qc-harian-mixer
+            judul: Qc Harian Mixer
+            procedure: SP_LaporanHasilQCHarianMixer
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: qc-harian-washing
+            judul: Qc Harian Washing
+            procedure: SP_LaporanHasilQCHarianWashing
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+      - grup: Mixer
+        items:
+          - type: mixer-produksi
+            judul: Mixer Produksi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: mutasi-mixer
+            judul: Mutasi Mixer
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            catatan: multi-SP (2)
+          - type: stock-mixer-per-material
+            judul: Stock Mixer Per Material
+            procedure: null
+            shape: custom
+            params:
+              - name: status
+                type: string
+              - name: warehouse
+                type: string
+          - type: stok-mixer
+            judul: Stok Mixer
+            procedure: SP_LapStokMixerV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: umur-mixer
+            judul: Umur Mixer
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+      - grup: Reject
+        items:
+          - type: mutasi-reject
+            judul: Mutasi Reject
+            procedure: SP_PPSLapMutasiReject
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stok-reject
+            judul: Stok Reject
+            procedure: SP_LaporanStockLabelReject
+            shape: custom
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: WarehouseName
+                type: string
+            granted: true
+      - grup: Rekap Produksi
+        items:
+          - type: produksi-harian-broker
+            judul: Produksi Harian Broker
+            procedure: SP_LapRekapProduksiBroker
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-crusher
+            judul: Produksi Harian Crusher
+            procedure: SP_LapRekapProduksiCrusher
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-gilingan
+            judul: Produksi Harian Gilingan
+            procedure: SP_LapRekapProduksiGilingan
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-hot-stamping-fwip
+            judul: Produksi Harian Hot Stamping Fwip
+            procedure: SP_LapRekapProduksiHotStamping_FWIP
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-inject-bj
+            judul: Produksi Harian Inject Bj
+            procedure: SP_LapRekapProduksiInject_BJ
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-inject-fwip
+            judul: Produksi Harian Inject Fwip
+            procedure: SP_LapRekapProduksiInject_FWIP
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-mixer
+            judul: Produksi Harian Mixer
+            procedure: SP_LapRekapProduksiMixer
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-packing-bj
+            judul: Produksi Harian Packing Bj
+            procedure: SP_LapRekapProduksiPacking_BJ
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-pasang-kunci-fwip
+            judul: Produksi Harian Pasang Kunci Fwip
+            procedure: SP_LapRekapProduksiPKunci_FWIP
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-spanner-fwip
+            judul: Produksi Harian Spanner Fwip
+            procedure: SP_LapRekapProduksiSpanner_FWIP
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+          - type: produksi-harian-washing
+            judul: Produksi Harian Washing
+            procedure: SP_LapRekapProduksiWashing
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            granted: true
+      - grup: Washing
+        items:
+          - type: mutasi-washing
+            judul: Mutasi Washing
+            procedure: null
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: tglAwal
+                type: date
+                sp: TglAwal
+              - name: EndDate
+                type: string
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+            catatan: multi-SP (2)
+          - type: produktivitas-washing
+            judul: Produktivitas Washing
+            procedure: SP_LapProduktivitasWashing
+            shape: period
+            params:
+              - name: StartDate
+                type: string
+              - name: EndDate
+                type: string
+            granted: true
+          - type: stock-washing-per-material
+            judul: Stock Washing Per Material
+            procedure: null
+            shape: custom
+            params:
+              - name: status
+                type: string
+              - name: warehouse
+                type: string
+          - type: stok-washing
+            judul: Stok Washing
+            procedure: SP_LapStokWashingV2
+            shape: asof
+            params:
+              - name: tglAkhir
+                type: date
+                sp: TglAkhir
+              - name: Warehouse
+                type: string
+            granted: true
+          - type: tenggelam-washing
+            judul: Tenggelam Washing
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date
+          - type: umur-washing
+            judul: Umur Washing
+            procedure: null
+            shape: custom
+            params:
+              - name: umur1
+                type: int
+              - name: umur2
+                type: int
+              - name: umur3
+                type: int
+              - name: umur4
+                type: int
+              - name: umur5
+                type: int
+          - type: washing-produksi
+            judul: Washing Produksi
+            procedure: null
+            shape: period
+            params:
+              - name: tglAwal
+                type: date
+              - name: tglAkhir
+                type: date

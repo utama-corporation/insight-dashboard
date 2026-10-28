@@ -2,7 +2,12 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import sql, { type ConnectionPool } from 'mssql'
 import { parse } from 'yaml'
-import { createApp, type RunReport, type Whitelist } from './app.js'
+import {
+  createApp,
+  type CatalogData,
+  type RunReport,
+  type Whitelist,
+} from './app.js'
 
 interface DbCredentials {
   server: string
@@ -37,6 +42,34 @@ function loadWhitelist(): Whitelist {
   return whitelist
 }
 
+/** Katalog laporan (metadata UI) + laporan 1-SP ikut masuk whitelist. */
+function loadCatalog(whitelist: Whitelist): CatalogData | undefined {
+  try {
+    const raw = parse(
+      readFileSync(path.resolve(process.cwd(), 'reports.catalog.yaml'), 'utf8'),
+    ) as unknown as CatalogData | null
+    if (raw === null || typeof raw !== 'object' || !('systems' in raw)) return undefined
+    for (const [system, cat] of Object.entries(raw.systems)) {
+      const sys = whitelist[system]
+      if (!sys) continue
+      for (const group of cat.groups) {
+        for (const item of group.items) {
+          if (!item.procedure || item.catatan) continue // multi-SP: lewat PDF 5007
+          if (sys.reports.some((r) => r.type === item.type)) continue // reports.yaml menang
+          sys.reports.push({
+            type: item.type,
+            procedure: item.procedure,
+            params: item.params.map((p) => ({ name: p.name, type: p.type, sp: p.sp })),
+          })
+        }
+      }
+    }
+    return raw
+  } catch {
+    return undefined // katalog opsional
+  }
+}
+
 function credentials(system: string): DbCredentials {
   const prefix = system.toUpperCase()
   const server = process.env[`${prefix}_DB_SERVER`]
@@ -52,6 +85,7 @@ function credentials(system: string): DbCredentials {
 
 const pools = new Map<string, Promise<ConnectionPool>>()
 
+const cacheTtl = Number(process.env.REPORT_CACHE_MS ?? 300_000) // 5 menit; set env untuk menyingkat
 function getPool(system: string, database: string): Promise<ConnectionPool> {
   const key = `${system}:${database}`
   const existing = pools.get(key)
@@ -83,19 +117,42 @@ const runReport: RunReport = async (system, def, params, database) => {
   const pool = await getPool(system, database)
   const request = pool.request()
   for (const p of def.params) {
+    const name = p.sp || p.name
     if (p.type === 'date') {
-      request.input(p.name, sql.Date, new Date(`${params[p.name]}T00:00:00Z`))
+      request.input(name, sql.Date, new Date(`${params[p.name]}T00:00:00Z`))
+    } else if (p.type === 'int') {
+      request.input(name, sql.Int, Number(params[p.name]))
+    } else {
+      request.input(name, sql.VarChar(100), params[p.name])
     }
   }
   const result = await request.execute(def.procedure)
   const rows = result.recordset ?? []
-  reportCache.set(cacheKey, { rows, expires: Date.now() + 30_000 })
+  reportCache.set(cacheKey, { rows, expires: Date.now() + cacheTtl })
   return rows
 }
 
+// Hangatkan pool tiap sistem saat boot — permintaan pertama tidak perlu
+// membayar handshake koneksi (init konektor + login). Kredensial hilang
+// atau DB mati tidak boleh menggagalkan boot; hanya tanda peringatan.
+const whitelist = loadWhitelist()
+for (const [system, def] of Object.entries(whitelist)) {
+  try {
+    getPool(system, def.database)
+      .then(() => console.log(`pool ${system} (${def.database}) ready`))
+      .catch((err: unknown) =>
+        console.warn(`pool ${system} belum siap: ${String(err)}`)
+      )
+  } catch (err) {
+    console.warn(`pool ${system} belum siap: ${String(err)}`)
+  }
+}
+
 const port = Number(process.env.PORT ?? 3001)
+const catalog = loadCatalog(whitelist)
 createApp({
-  whitelist: loadWhitelist(),
+  whitelist,
+  catalogData: catalog,
   runReport,
   allowedOrigin: process.env.CORS_ORIGIN || undefined,
 }).listen(port, () => {

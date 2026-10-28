@@ -1,4 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+// Tailwind dimuat — tanpa ini popover bulan melebar keluar viewport iframe
+// (414px) dan tombol bulan tidak bisa diklik (lihat ruling di SDD ledger).
+import '@/styles/index.css'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { fetchReport } from '@/lib/api'
@@ -55,6 +58,15 @@ const produksiCur = [
     Output: 40,
     Rend: 40,
   },
+  // Hari non-aktif: target tercatat tapi output kosong — tidak boleh mengencerkan realisasi
+  {
+    Tanggal: '2026-10-04',
+    NamaMesin: 'A',
+    Target: 100,
+    Input: 0,
+    Output: null,
+    Rend: null,
+  },
 ]
 const produksiPrev = [
   {
@@ -67,10 +79,12 @@ const produksiPrev = [
   },
 ]
 const mutasiCur = [
-  { Tanggal: '2026-10-26', TotalAkhir: 120 },
-  { Tanggal: '2026-10-27', TotalAkhir: 90 },
+  { Tanggal: '2026-10-26', S4S: 120, KBKG: 0, TotalAkhir: 120 },
+  { Tanggal: '2026-10-27', S4S: 90, KBKG: 7000, TotalAkhir: 7090 },
 ]
-const mutasiPrev = [{ Tanggal: '2026-09-27', TotalAkhir: 100 }]
+const mutasiPrev = [
+  { Tanggal: '2026-09-27', S4S: 100, KBKG: 0, TotalAkhir: 100 },
+]
 const rendemenCur = [
   { Tanggal: '2026-10-27', Input: 100, Output: 60, GRP: 'S4S' },
 ]
@@ -78,7 +92,7 @@ const rendemenPrev = [
   { Tanggal: '2026-09-27', Input: 100, Output: 50, GRP: 'S4S' },
 ]
 
-async function renderPage() {
+async function renderPage(initialMonth = '2026-10') {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   })
@@ -88,7 +102,7 @@ async function renderPage() {
         <ThemeProvider>
           <LayoutProvider>
             <SidebarProvider>
-              <WpsPage initialMonth='2026-10' />
+              <WpsPage initialMonth={initialMonth} />
             </SidebarProvider>
           </LayoutProvider>
         </ThemeProvider>
@@ -123,7 +137,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
     await expect
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('100')
-    // Realisasi = 100/200 = 50%
+    // Realisasi = 100/200 = 50% (hanya hari aktif; hari tanpa output tidak dihitung)
     await expect
       .element(screen.getByTestId('kpi-realisasi'))
       .toHaveTextContent('50%')
@@ -131,10 +145,13 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
     await expect
       .element(screen.getByTestId('kpi-rendemen'))
       .toHaveTextContent('60%')
-    // Mutasi akhir = 90
+    // Mutasi akhir = 90 (KBKG 7.000 kg TIDAK ikut — satuan kg, bukan m³)
     await expect
       .element(screen.getByTestId('kpi-mutasi'))
       .toHaveTextContent('90')
+    await expect
+      .element(screen.getByTestId('kpi-mutasi'))
+      .not.toHaveTextContent('7.090')
     // Data wajar -> tidak ada banner anomali
     expect(document.querySelector('[data-testid="insight-anomali"]')).toBeNull()
   })
@@ -163,7 +180,7 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('—')
   })
 
-  it('menandai rendemen di atas 100% sebagai anomali data', async () => {
+  it('menandai rendemen bulanan di atas 100% (buffer WIP)', async () => {
     mockFetchReport.mockImplementation(async (_system, type, params) => {
       const isCur = params.tglAwal?.startsWith('2026-10')
       switch (type) {
@@ -183,10 +200,12 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
 
     await expect
       .element(screen.getByTestId('insight-anomali'))
-      .toHaveTextContent('1 baris rendemen di atas 100%')
+      .toHaveTextContent(
+        'Rendemen bulanan di atas 100% (output memakai buffer WIP)'
+      )
     await expect
       .element(screen.getByTestId('insight-anomali'))
-      .toHaveTextContent('3.300% — MOULDING, 2026-10-16')
+      .toHaveTextContent('MOULDING (3.300%)')
   })
 
   it('membandingkan dengan periode sebelumnya (Δ%)', async () => {
@@ -207,7 +226,17 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
 
     await expect
       .element(screen.getByTestId('insight-produksi'))
-      .toHaveTextContent('naik 100%')
+      .toHaveTextContent(
+        'Produksi Oktober 2026: 100 m³ — naik 100% dibanding September 2026 (50).'
+      )
+  })
+
+  it('insight rollover tahun: Januari membandingkan Desember', async () => {
+    const screen = await renderPage('2027-01')
+
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('dibanding Desember 2026 (50).')
   })
 
   it('hanya memanggil laporan sistem WPS', async () => {
@@ -229,12 +258,53 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('100')
 
-    const picker = screen.getByLabelText('Pilih periode')
-    await picker.fill('2026-09')
+    const picker = screen.getByRole('button', { name: /Pilih periode/ })
+    await picker.click()
+    await screen.getByRole('button', { name: 'September' }).click()
 
     // Bulan 2026-09: cur memakai fixture "prev" (Output 50) — Δ 0%
     await expect
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('50')
+  })
+
+  it('menandai data periode lama saat periode baru belum termuat', async () => {
+    // Periode lain menggantung: jembatan keepPreviousData (data periode lama)
+    // tidak boleh tampil seolah sudah termuat.
+    mockFetchReport.mockImplementation(async (_system, type, params) => {
+      // Hanya periode 2026-10 (cur) & 2026-09 (prev awal) yang dijawab;
+      // periode lain menggantung agar efek "data lama masih tampil" muncul.
+      const known =
+        params.tglAwal?.startsWith('2026-10') ||
+        params.tglAwal?.startsWith('2026-09')
+      if (known) {
+        const isCur = params.tglAwal?.startsWith('2026-10')
+        switch (type) {
+          case 'produksi-semua-mesin':
+            return isCur ? produksiCur : produksiPrev
+          case 'rekap-mutasi':
+            return isCur ? mutasiCur : mutasiPrev
+          case 'rendemen-semua-proses':
+            return isCur ? rendemenCur : rendemenPrev
+          default:
+            throw new Error(`unexpected report type ${type}`)
+        }
+      }
+      return new Promise(() => {})
+    })
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('100')
+
+    const picker = screen.getByRole('button', { name: /Pilih periode/ })
+    await picker.click()
+    await screen.getByRole('button', { name: 'November' }).click()
+
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('Memuat data produksi…')
+    expect(document.querySelector('[data-testid="insight-anomali"]')).toBeNull()
   })
 })

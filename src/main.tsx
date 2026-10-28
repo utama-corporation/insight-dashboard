@@ -33,7 +33,7 @@ const queryClient = new QueryClient({
         )
       },
       refetchOnWindowFocus: import.meta.env.PROD,
-      staleTime: 30 * 1000, // 30s — navigasi antar halaman instan dari cache
+      staleTime: 5 * 60 * 1000, // 5 menit — selaras TTL cache server (REPORT_CACHE_MS default)
     },
     mutations: {
       onError: (error) => {

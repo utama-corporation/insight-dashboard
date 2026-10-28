@@ -24,6 +24,9 @@ export default defineConfig({
       '@tanstack/react-router-devtools',
       'react-top-loading-bar',
       'recharts',
+      // dep MonthPicker (WPS) — tanpa pre-bundle, Radix popover meniru
+      // reload di tengah run test dan membuat salinan React kedua
+      '@radix-ui/react-popover',
     ],
   },
   plugins: [

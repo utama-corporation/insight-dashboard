@@ -13,6 +13,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedWpsIndexRouteImport } from './routes/_authenticated/wps/index'
 import { Route as AuthenticatedPpsIndexRouteImport } from './routes/_authenticated/pps/index'
+import { Route as AuthenticatedWpsLaporanTypeRouteImport } from './routes/_authenticated/wps/laporan/$type'
+import { Route as AuthenticatedPpsLaporanTypeRouteImport } from './routes/_authenticated/pps/laporan/$type'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -33,16 +35,32 @@ const AuthenticatedPpsIndexRoute = AuthenticatedPpsIndexRouteImport.update({
   path: '/pps/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedWpsLaporanTypeRoute =
+  AuthenticatedWpsLaporanTypeRouteImport.update({
+    id: '/wps/laporan/$type',
+    path: '/wps/laporan/$type',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPpsLaporanTypeRoute =
+  AuthenticatedPpsLaporanTypeRouteImport.update({
+    id: '/pps/laporan/$type',
+    path: '/pps/laporan/$type',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/pps/': typeof AuthenticatedPpsIndexRoute
   '/wps/': typeof AuthenticatedWpsIndexRoute
+  '/pps/laporan/$type': typeof AuthenticatedPpsLaporanTypeRoute
+  '/wps/laporan/$type': typeof AuthenticatedWpsLaporanTypeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/pps': typeof AuthenticatedPpsIndexRoute
   '/wps': typeof AuthenticatedWpsIndexRoute
+  '/pps/laporan/$type': typeof AuthenticatedPpsLaporanTypeRoute
+  '/wps/laporan/$type': typeof AuthenticatedWpsLaporanTypeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,18 +68,27 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/pps/': typeof AuthenticatedPpsIndexRoute
   '/_authenticated/wps/': typeof AuthenticatedWpsIndexRoute
+  '/_authenticated/pps/laporan/$type': typeof AuthenticatedPpsLaporanTypeRoute
+  '/_authenticated/wps/laporan/$type': typeof AuthenticatedWpsLaporanTypeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/pps/' | '/wps/'
+  fullPaths:
+    | '/'
+    | '/pps/'
+    | '/wps/'
+    | '/pps/laporan/$type'
+    | '/wps/laporan/$type'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/pps' | '/wps'
+  to: '/' | '/pps' | '/wps' | '/pps/laporan/$type' | '/wps/laporan/$type'
   id:
     | '__root__'
     | '/_authenticated'
     | '/_authenticated/'
     | '/_authenticated/pps/'
     | '/_authenticated/wps/'
+    | '/_authenticated/pps/laporan/$type'
+    | '/_authenticated/wps/laporan/$type'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -98,6 +125,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPpsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/wps/laporan/$type': {
+      id: '/_authenticated/wps/laporan/$type'
+      path: '/wps/laporan/$type'
+      fullPath: '/wps/laporan/$type'
+      preLoaderRoute: typeof AuthenticatedWpsLaporanTypeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pps/laporan/$type': {
+      id: '/_authenticated/pps/laporan/$type'
+      path: '/pps/laporan/$type'
+      fullPath: '/pps/laporan/$type'
+      preLoaderRoute: typeof AuthenticatedPpsLaporanTypeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -105,12 +146,16 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedPpsIndexRoute: typeof AuthenticatedPpsIndexRoute
   AuthenticatedWpsIndexRoute: typeof AuthenticatedWpsIndexRoute
+  AuthenticatedPpsLaporanTypeRoute: typeof AuthenticatedPpsLaporanTypeRoute
+  AuthenticatedWpsLaporanTypeRoute: typeof AuthenticatedWpsLaporanTypeRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedPpsIndexRoute: AuthenticatedPpsIndexRoute,
   AuthenticatedWpsIndexRoute: AuthenticatedWpsIndexRoute,
+  AuthenticatedPpsLaporanTypeRoute: AuthenticatedPpsLaporanTypeRoute,
+  AuthenticatedWpsLaporanTypeRoute: AuthenticatedWpsLaporanTypeRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

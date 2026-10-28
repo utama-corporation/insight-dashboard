@@ -17,6 +17,7 @@ import {
   MUTASI_LABELS,
   largestCategory,
   lowestRendemen,
+  lowestRealisasi,
   topMover,
 } from '../category-insights'
 
@@ -40,6 +41,7 @@ function CategoryCard({
   insight,
   insightId,
   chartId,
+  keterangan,
   className,
   children,
 }: {
@@ -47,6 +49,7 @@ function CategoryCard({
   insight: string
   insightId: string
   chartId: string
+  keterangan?: string
   className?: string
   children: React.ReactNode
 }) {
@@ -64,6 +67,14 @@ function CategoryCard({
             {children}
           </ResponsiveContainer>
         </div>
+        {keterangan && (
+          <p
+            className='mt-2 text-xs text-muted-foreground'
+            data-testid={`keterangan-${chartId}`}
+          >
+            {keterangan}
+          </p>
+        )}
       </CardContent>
     </Card>
   )
@@ -89,18 +100,27 @@ export function ProductionMachineChart({
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
   const mover = topMover(current, previous, 'NamaMesin')
+  const realisasi = lowestRealisasi(current, 'NamaMesin')
 
   return (
     <CategoryCard
       className={className}
       title='Total Produksi per Mesin (m³)'
       insight={
-        mover
-          ? `Perubahan terbesar: ${mover.name} (${mover.delta > 0 ? '+' : ''}${mover.delta}%)`
+        mover || realisasi
+          ? [
+              mover &&
+                `Perubahan terbesar: ${mover.name} (${mover.delta > 0 ? '+' : ''}${mover.delta}%)`,
+              realisasi &&
+                `Realisasi terendah: ${realisasi.name} (${realisasi.pct}%)`,
+            ]
+              .filter(Boolean)
+              .join('. ')
           : 'Belum ada data perbandingan.'
       }
       insightId='insight-mesin'
       chartId='chart-produksi-mesin'
+      keterangan='Biru = mesin dengan perubahan % terbesar vs bulan lalu (naik maupun turun); abu-abu = mesin lainnya. Panjang batang = total output bulan ini.'
     >
       <BarChart
         data={data}
@@ -170,7 +190,7 @@ export function MutationCategoryChart({
   return (
     <CategoryCard
       className={className}
-      title='Komposisi Mutasi per Kategori (kg)'
+      title='Komposisi Mutasi per Kategori (m³)'
       insight={
         largest
           ? `Komposisi terbesar: ${largest.name} (${formatNumber(largest.value)})`
@@ -178,6 +198,7 @@ export function MutationCategoryChart({
       }
       insightId='insight-mutasi'
       chartId='chart-mutasi-kategori'
+      keterangan='Semua batang abu-abu — chart ini murni peringkat komposisi stok akhir (m³) dan tidak menyorot satu kategori. KBKG (kayu bulat, satuannya kg) tidak dimasukkan.'
     >
       <BarChart
         data={data}
@@ -238,6 +259,7 @@ export function RendemenGroupChart({
       }
       insightId='insight-rendemen'
       chartId='chart-rendemen-grp'
+      keterangan='Biru = grup proses dengan rendemen terendah (fokus perhatian); abu-abu = lainnya. Rendemen = Output ÷ Input × 100 tertimbang per grup.'
     >
       <BarChart data={data} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
         <CartesianGrid vertical={false} stroke='var(--border)' />
