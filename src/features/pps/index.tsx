@@ -11,13 +11,7 @@ import {
   YAxis,
 } from 'recharts'
 import { fetchReport } from '@/lib/api'
-import {
-  deltaPct,
-  formatNumber,
-  periodBounds,
-  type Period,
-} from '@/lib/report-metrics'
-import { Input } from '@/components/ui/input'
+import { deltaPct, formatNumber, periodBounds } from '@/lib/report-metrics'
 import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
@@ -47,9 +41,9 @@ const tooltip = {
   itemStyle: { color: 'var(--foreground)' },
 }
 
-/** Tanggal `i` hari sebelum akhir periode (inklusif akhir). */
-function dayBefore(period: Period, i: number): string {
-  const date = new Date(`${period.akhir}T00:00:00Z`)
+/** Tanggal `i` hari sebelum `end` (inklusif). */
+function daysBefore(end: string, i: number): string {
+  const date = new Date(`${end}T00:00:00Z`)
   date.setUTCDate(date.getUTCDate() - i)
   return date.toISOString().slice(0, 10)
 }
@@ -60,13 +54,16 @@ const dayLabel = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`
 type TrendRow = { tanggal: string; label: string } & Record<Proses, number>
 
 export function PpsPage({ initialMonth }: { initialMonth?: string }) {
-  const [month, setMonth] = useState(
-    initialMonth ?? new Date().toISOString().slice(0, 7)
+  // Tren 7 hari tidak difilter per bulan — selalu 7 hari terakhir sampai
+  // tanggal akhir yang dipilih (default: hari ini).
+  const [endDate] = useState(
+    initialMonth
+      ? periodBounds(initialMonth).cur.akhir
+      : new Date().toISOString().slice(0, 10)
   )
-  const { cur } = periodBounds(month)
 
-  // Trend 7 hari terakhir periode: 1 snapshot per proses per hari.
-  const trendDays = [6, 5, 4, 3, 2, 1, 0].map((i) => dayBefore(cur, i))
+  // Trend 7 hari terakhir: 1 snapshot per proses per hari.
+  const trendDays = [6, 5, 4, 3, 2, 1, 0].map((i) => daysBefore(endDate, i))
   const trend = useQuery({
     queryKey: ['pps', 'trend', trendDays],
     queryFn: async () => {
@@ -145,16 +142,9 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
               Plastic Production System
             </h1>
             <p className='mt-1 text-sm text-muted-foreground'>
-              Output per proses, 7 hari terakhir
+              Output per proses, 7 hari terakhir (sampai {endDate})
             </p>
           </div>
-          <Input
-            type='month'
-            value={month}
-            onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className='h-9 w-40'
-            aria-label='Pilih periode'
-          />
         </div>
 
         <p
