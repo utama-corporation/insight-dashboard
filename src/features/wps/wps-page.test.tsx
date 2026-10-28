@@ -1,4 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+// Tailwind dimuat — tanpa ini popover bulan melebar keluar viewport iframe
+// (414px) dan tombol bulan tidak bisa diklik (lihat ruling di SDD ledger).
+import '@/styles/index.css'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-react'
 import { fetchReport } from '@/lib/api'
@@ -230,11 +233,52 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('100')
 
     const picker = screen.getByLabelText('Pilih periode')
-    await picker.fill('2026-09')
+    await picker.click()
+    await screen.getByRole('button', { name: 'September' }).click()
 
     // Bulan 2026-09: cur memakai fixture "prev" (Output 50) — Δ 0%
     await expect
       .element(screen.getByTestId('kpi-total-produksi'))
       .toHaveTextContent('50')
+  })
+
+  it('menandai data periode lama saat periode baru belum termuat', async () => {
+    // Periode lain menggantung: jembatan keepPreviousData (data periode lama)
+    // tidak boleh tampil seolah sudah termuat.
+    mockFetchReport.mockImplementation(async (_system, type, params) => {
+      // Hanya periode 2026-10 (cur) & 2026-09 (prev awal) yang dijawab;
+      // periode lain menggantung agar efek "data lama masih tampil" muncul.
+      const known =
+        params.tglAwal?.startsWith('2026-10') ||
+        params.tglAwal?.startsWith('2026-09')
+      if (known) {
+        const isCur = params.tglAwal?.startsWith('2026-10')
+        switch (type) {
+          case 'produksi-semua-mesin':
+            return isCur ? produksiCur : produksiPrev
+          case 'rekap-mutasi':
+            return isCur ? mutasiCur : mutasiPrev
+          case 'rendemen-semua-proses':
+            return isCur ? rendemenCur : rendemenPrev
+          default:
+            throw new Error(`unexpected report type ${type}`)
+        }
+      }
+      return new Promise(() => {})
+    })
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('100')
+
+    const picker = screen.getByLabelText('Pilih periode')
+    await picker.click()
+    await screen.getByRole('button', { name: 'November' }).click()
+
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('Memuat data produksi…')
+    expect(document.querySelector('[data-testid="insight-anomali"]')).toBeNull()
   })
 })

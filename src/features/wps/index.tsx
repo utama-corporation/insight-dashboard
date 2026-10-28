@@ -10,12 +10,12 @@ import {
   weightedPct,
   type Period,
 } from '@/lib/report-metrics'
-import { Input } from '@/components/ui/input'
 import { Kpi, KpiStrip } from '@/components/kpi-strip'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { rendemenAnomalies } from './category-insights'
+import { MonthPicker } from './month-picker'
 
 const ProductionMachineChart = lazy(() =>
   import('./components/category-charts').then((m) => ({
@@ -57,6 +57,14 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const mutasiPrev = useReport('rekap-mutasi', prev)
   const rendemenCur = useReport('rendemen-semua-proses', cur)
   const rendemenPrev = useReport('rendemen-semua-proses', prev)
+  const semuaLaporan = [
+    produksiCur,
+    produksiPrev,
+    mutasiCur,
+    mutasiPrev,
+    rendemenCur,
+    rendemenPrev,
+  ]
 
   const outputCur = sumBy(produksiCur.data ?? [], 'Output')
   const outputPrev = sumBy(produksiPrev.data ?? [], 'Output')
@@ -71,21 +79,11 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const mutasiCurKg = latestTotal(mutasiCur.data ?? [], 'TotalAkhir')
   const mutasiPrevKg = latestTotal(mutasiPrev.data ?? [], 'TotalAkhir')
 
-  const loaded =
-    produksiCur.isSuccess &&
-    produksiPrev.isSuccess &&
-    mutasiCur.isSuccess &&
-    mutasiPrev.isSuccess &&
-    rendemenCur.isSuccess &&
-    rendemenPrev.isSuccess
-  const failed = [
-    produksiCur,
-    produksiPrev,
-    mutasiCur,
-    mutasiPrev,
-    rendemenCur,
-    rendemenPrev,
-  ].some((query) => query.isError)
+  const loaded = semuaLaporan.every((laporan) => laporan.isSuccess)
+  const failed = semuaLaporan.some((laporan) => laporan.isError)
+  // keepPreviousData melaporkan status success + data periode LAMA selama
+  // periode baru dimuat — tampilkan sebagai "memuat", bukan data terpilih.
+  const memuat = semuaLaporan.some((laporan) => laporan.isPlaceholderData)
 
   const deltaProduksi = loaded ? deltaPct(outputCur, outputPrev) : undefined
   const anomalies = rendemenAnomalies(rendemenCur.data ?? [], 'GRP')
@@ -93,7 +91,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
   const topAnomaly = anomalies[0]
   const insight = failed
     ? 'Gagal memuat data. Periksa koneksi ke server.'
-    : deltaProduksi === undefined
+    : memuat || deltaProduksi === undefined
       ? 'Memuat data produksi…'
       : deltaProduksi === 0
         ? 'Produksi stabil dibanding periode sebelumnya.'
@@ -114,13 +112,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
               Produksi, rendemen, dan mutasi bahan per bulan
             </p>
           </div>
-          <Input
-            type='month'
-            value={month}
-            onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className='h-9 w-40'
-            aria-label='Pilih periode'
-          />
+          <MonthPicker value={month} onChange={setMonth} className='h-9 w-40' />
         </div>
 
         <p
@@ -132,7 +124,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           {insight}
         </p>
 
-        {loaded && topAnomaly && (
+        {loaded && !memuat && topAnomaly && (
           <p
             className='mt-3 rounded-md border border-warning-border bg-warning-surface px-3 py-2 text-xs text-warning'
             data-testid='insight-anomali'
@@ -144,7 +136,11 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           </p>
         )}
 
-        <KpiStrip className='mt-5 sm:grid-cols-2 lg:grid-cols-4'>
+        <KpiStrip
+          className={
+            'mt-5 sm:grid-cols-2 lg:grid-cols-4' + (memuat ? ' opacity-60' : '')
+          }
+        >
           <Kpi
             label='Total Produksi (m³)'
             value={loaded ? formatNumber(outputCur) : '—'}
@@ -178,7 +174,7 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
           />
         </KpiStrip>
 
-        {loaded && (
+        {loaded && !memuat && (
           <Suspense
             fallback={
               <div className='mt-4 grid gap-4 lg:grid-cols-2'>
