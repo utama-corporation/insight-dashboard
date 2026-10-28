@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import { NavCatalog } from '@/features/laporan/nav-catalog'
 import { sidebarData } from './data/sidebar-data'
 import { NavGroup } from './nav-group'
 
@@ -40,6 +41,8 @@ export function AppSidebar() {
         {sidebarData.navGroups.map((props) => (
           <NavGroup key={props.title} {...props} />
         ))}
+        <NavCatalog system='wps' label='Laporan WPS' />
+        <NavCatalog system='pps' label='Laporan PPS' />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

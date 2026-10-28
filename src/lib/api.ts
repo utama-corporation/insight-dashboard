@@ -17,3 +17,24 @@ export async function fetchReport(
   const res = await client.post(`/api/${system}/reports/${type}`, { params })
   return res.data.rows
 }
+
+export interface CatalogItem {
+  type: string
+  judul: string
+  shape: 'period' | 'asof' | 'none' | 'custom'
+  params: { name: string; type: 'date' | 'int' | 'string' }[]
+  granted?: boolean
+  catatan?: string
+}
+
+export interface CatalogGroup {
+  grup: string
+  items: CatalogItem[]
+}
+
+export async function fetchCatalog(system: string): Promise<CatalogGroup[]> {
+  const res = await client.get(`/api/${system}/catalog`)
+  return res.data.groups
+}
+
+// sentuh HMR 1793176458
