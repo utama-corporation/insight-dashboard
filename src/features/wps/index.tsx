@@ -159,29 +159,29 @@ export function WpsPage({ initialMonth }: { initialMonth?: string }) {
         <div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-4'>
           <KpiCard
             label='Total Produksi (m³)'
-            value={formatNumber(outputCur)}
+            value={loaded ? formatNumber(outputCur) : '—'}
             delta={deltaProduksi}
             testId='kpi-total-produksi'
           />
           <KpiCard
             label='Realisasi vs Target'
-            value={formatNumber(realisasiCur)}
-            suffix='%'
+            value={loaded ? formatNumber(realisasiCur) : '—'}
+            suffix={loaded ? '%' : undefined}
             delta={loaded ? realisasiCur - realisasiPrev : undefined}
             deltaUnit='pp'
             testId='kpi-realisasi'
           />
           <KpiCard
             label='Rendemen'
-            value={formatNumber(rendemenCurPct)}
-            suffix='%'
+            value={loaded ? formatNumber(rendemenCurPct) : '—'}
+            suffix={loaded ? '%' : undefined}
             delta={loaded ? rendemenCurPct - rendemenPrevPct : undefined}
             deltaUnit='pp'
             testId='kpi-rendemen'
           />
           <KpiCard
             label='Mutasi Total (kg)'
-            value={formatNumber(mutasiCurKg)}
+            value={loaded ? formatNumber(mutasiCurKg) : '—'}
             delta={loaded ? deltaPct(mutasiCurKg, mutasiPrevKg) : undefined}
             testId='kpi-mutasi'
           />

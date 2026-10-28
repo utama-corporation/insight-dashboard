@@ -8,6 +8,10 @@ import { playwright } from '@vitest/browser-playwright'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    port: 5173,
+    strictPort: true, // jangan diam-diam pindah port: origin CORS server mengacu ke 5173
+  },
   // Pre-bundle deps yang terdeteksi saat test berjalan — tanpa ini Vite
   // reload di tengah run CI dan membuat salinan React kedua (invalid hook call)
   optimizeDeps: {

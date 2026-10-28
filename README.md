@@ -1,119 +1,61 @@
 # Insight Dashboard
 
-Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
+Dashboard analitik **read-only** untuk manajemen: satu halaman per Sistem — `/wps` (Wood Processing System) dan `/pps` (Plastic Production System) — berisi KPI periode, perbandingan dengan periode sebelumnya, insight berbasis aturan, dan grafik per kategori.
 
-![alt text](public/images/shadcn-admin.png)
+Data diambil langsung dari database SQL Server tiap Sistem melalui layanan `/server` yang hanya menjalankan stored procedure dalam whitelist, memakai akun read-only.
 
-[![Sponsored by Clerk](https://img.shields.io/badge/Sponsored%20by-Clerk-5b6ee1?logo=clerk)](https://go.clerk.com/GttUAaK)
+## Prasyarat
 
-I've been creating dashboard UIs at work and for my personal projects. I always wanted to make a reusable collection of dashboard UI for future projects; and here it is now. While I've created a few custom components, some of the code is directly adapted from ShadcnUI examples.
+- Node.js 22+ dan pnpm
+- Akses database Production tiap Sistem dengan akun read-only
 
-> This is not a starter project (template) though. I'll probably make one in the future.
-
-## Features
-
-- Light/dark mode
-- Responsive
-- Accessible
-- With built-in Sidebar component
-- Global search command
-- 10+ pages
-- Extra custom components
-- RTL support
-
-<details>
-<summary>Customized Components (click to expand)</summary>
-
-This project uses Shadcn UI components, but some have been slightly modified for better RTL (Right-to-Left) support and other improvements. These customized components differ from the original Shadcn UI versions.
-
-If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest add <component>`), it's generally safe for non-customized components. For the listed customized ones, you may need to manually merge changes to preserve the project's modifications and avoid overwriting RTL support or other updates.
-
-> If you don't require RTL support, you can safely update the 'RTL Updated Components' via the Shadcn CLI, as these changes are primarily for RTL compatibility. The 'Modified Components' may have other customizations to consider.
-
-### Modified Components
-
-- scroll-area
-- sonner
-- separator
-
-### RTL Updated Components
-
-- alert-dialog
-- calendar
-- command
-- dialog
-- dropdown-menu
-- select
-- table
-- sheet
-- sidebar
-- switch
-
-**Notes:**
-
-- **Modified Components**: These have general updates, potentially including RTL adjustments.
-- **RTL Updated Components**: These have specific changes for RTL language support (e.g., layout, positioning).
-- For implementation details, check the source files in `src/components/ui/`.
-- All other Shadcn UI components in the project are standard and can be safely updated via the CLI.
-
-</details>
-
-## Tech Stack
-
-**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
-
-**Build Tool:** [Vite](https://vitejs.dev/)
-
-**Routing:** [TanStack Router](https://tanstack.com/router/latest)
-
-**Type Checking:** [TypeScript](https://www.typescriptlang.org/)
-
-**Linting/Formatting:** [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
-
-**Icons:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons) (Brand icons only)
-
-**Auth (partial):** [Clerk](https://go.clerk.com/GttUAaK)
-
-## Run Locally
-
-Clone the project
+## Menjalankan
 
 ```bash
-  git clone https://github.com/utama-corporation/insight-dashboard.git
+pnpm install
+
+# client — opsional, default sudah http://localhost:3001
+cp .env.example .env
+
+# server — wajib, isi kredensial read-only per Sistem
+cp server/.env.example server/.env
+
+# jalankan client + server sekaligus
+pnpm dev:all
 ```
 
-Go to the project directory
+Client: `http://localhost:5173` — API: `http://localhost:3001` (health check `GET /health`).
+
+Alternatif dua terminal: `pnpm dev` (client) dan `pnpm dev:server` (server).
+Untuk build lalu jalankan sekali: `pnpm --filter server start`.
+
+## Verifikasi
 
 ```bash
-  cd insight-dashboard
+pnpm build && pnpm lint && pnpm test && pnpm knip
+pnpm --filter server lint && pnpm --filter server build && pnpm --filter server test
 ```
 
-Install dependencies
+Validasi seluruh SP whitelist ke Production (butuh `server/.env`):
 
 ```bash
-  pnpm install
+pnpm --filter server validate
 ```
 
-Start the server
+## Struktur
 
-```bash
-  pnpm run dev
-```
+- `src/` — client Vite/React: halaman `features/wps`, `features/pps`, seam API di `lib/api.ts`.
+- `server/` — Express + `mssql`; whitelist laporan di `server/reports.yaml`.
+- `CONTEXT.md` — glossary domain (Sistem, Metrik, Insight, Server, WPS, PPS).
+- `docs/agents/` — konvensi kerja agent (issue, label, domain).
 
-## Sponsoring this project ❤️
+## Keamanan
 
-If you find this project helpful or use this in your own work, consider [sponsoring me](https://github.com/sponsors/satnaing) to support development and maintenance. You can [buy me a coffee](https://buymeacoffee.com/satnaing) as well. Don’t worry, every penny helps. Thank you! 🙏
+- Hanya database **Production**; kredensial hanya di `server/.env` (gitignored) — jangan pernah di-commit.
+- Akun read-only: `db_datareader` + `GRANT EXECUTE` per stored procedure.
+- Report type dan params di luar whitelist ditolak server (400).
+- Belum ada autentikasi di fase ini; seam route `_authenticated` disiapkan untuk fase berikutnya.
 
-For questions or sponsorship inquiries, feel free to reach out at [satnaingdev@gmail.com](mailto:satnaingdev@gmail.com).
+## Lisensi
 
-### Current Sponsor
-
-- [Clerk](https://go.clerk.com/GttUAaK) - authentication and user management for the modern web
-
-## Author
-
-Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
-
-## License
-
-Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+MIT. Berbasis [shadcn-admin](https://github.com/satnaing/shadcn-admin) oleh [@satnaing](https://github.com/satnaing).

@@ -140,6 +140,18 @@ describe('WpsPage — Lapisan 1 Ringkasan', () => {
       .toHaveTextContent('90')
   })
 
+  it('menampilkan placeholder, bukan 0, saat data belum termuat', async () => {
+    mockFetchReport.mockImplementation(() => new Promise(() => {}))
+    const screen = await renderPage()
+
+    await expect
+      .element(screen.getByTestId('kpi-total-produksi'))
+      .toHaveTextContent('—')
+    await expect
+      .element(screen.getByTestId('insight-produksi'))
+      .toHaveTextContent('Memuat data produksi…')
+  })
+
   it('membandingkan dengan periode sebelumnya (Δ%)', async () => {
     const screen = await renderPage()
 

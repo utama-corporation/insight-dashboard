@@ -158,7 +158,7 @@ export function PpsPage({ initialMonth }: { initialMonth?: string }) {
                   className='text-2xl font-bold'
                   data-testid={`kpi-proses-${proses}`}
                 >
-                  {formatNumber(lastNonZero(proses))}
+                  {trend.isLoading ? '—' : formatNumber(lastNonZero(proses))}
                 </div>
               </CardContent>
             </Card>
